@@ -1,5 +1,0 @@
-{
-	"@type":"Subset",
-	"Name":"All Versions",
-	"Expression":"{TM1FILTERBYLEVEL({TM1SUBSETALL([Version].[Version])}, 0)}"
-}

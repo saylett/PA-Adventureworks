@@ -3,6 +3,7 @@
 	"Name":"Cub.Test Process",
 	"HasSecurityAccess":false,
 	"Code@Code.link":"Cub.Test Process.ti",
+	"UIData":"_ParameterConstraints=e30=€",
 	"DataSource":
 	{
 		"Type":"None"

@@ -1,5 +1,0 @@
-{
-	"@type":"Subset",
-	"Name":"05",
-	"Expression":"{[CH Item].[CH Item].[00001],[CH Item].[CH Item].[00002],[CH Item].[CH Item].[00003],[CH Item].[CH Item].[00004],[CH Item].[CH Item].[00005]}"
-}

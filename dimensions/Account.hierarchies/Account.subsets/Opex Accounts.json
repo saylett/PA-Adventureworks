@@ -1,5 +1,0 @@
-{
-	"@type":"Subset",
-	"Name":"Opex Accounts",
-	"Expression":"{{DISTINCT({[Account].[Account].[60], DESCENDANTS([Account].[Account].[60], 99 , LEAVES)})}}"
-}

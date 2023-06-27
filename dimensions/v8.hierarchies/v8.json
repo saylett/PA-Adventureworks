@@ -1,9 +1,0 @@
-{
-	"@type":"Hierarchy",
-	"Name":"v8",
-	"Elements":[],
-	"Subsets@Code.links":
-	[
-		"v8.subsets/}Bedrock.Dim.Clone.json"
-	]
-}

@@ -13,4 +13,9 @@
 #region Epilog
 #****Begin: Generated Statements***
 #****End: Generated Statements****
+# THIS IS A TEST
+
+cVal = 'test';
+
+DimensionElementInsertDirect('Account', '', cVal,'N');
 #endregion

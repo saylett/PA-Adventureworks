@@ -1,5 +1,0 @@
-{
-	"@type":"Subset",
-	"Name":"Dyna",
-	"Expression":"{TM1FILTERBYLEVEL( {TM1SUBSETALL( [Year] )}, 0)}"
-}

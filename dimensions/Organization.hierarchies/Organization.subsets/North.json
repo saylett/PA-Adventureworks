@@ -1,5 +1,0 @@
-{
-	"@type":"Subset",
-	"Name":"North",
-	"Expression":"{TM1DRILLDOWNMEMBER( {TM1SubsetBasis()}, ALL, RECURSIVE )}"
-}

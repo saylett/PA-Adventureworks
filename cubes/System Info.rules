@@ -1,3 +1,0 @@
-
-['Server Time', 'Numeric'] = NOW;
-['Server Time', 'String'] = S: TIMST(NOW, ' \d-\m-\Y \h:\i:\s', 1);
