@@ -1,0 +1,64 @@
+{
+	"@type":"Process",
+	"Name":"Dim Organization",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Dim Organization.ti",
+	"UIData":"CubeAction=1511€DataAction=1503€CubeLogChanges=0€",
+	"VariablesUIData":
+	[
+		"VarType=32€ColType=827€",
+		"VarType=32€ColType=827€",
+		"VarType=32€ColType=827€",
+		"VarType=33€ColType=827€",
+		"VarType=32€ColType=827€"
+	],
+	"DataSource":
+	{
+		"Type":"ODBC",
+		"dataSourceNameForClient":"AdventureWorksDW 64",
+		"dataSourceNameForServer":"AdventureWorksDW 64",
+		"password":"wq;^dE5l`0v9HMkkFDB?HNtapc[X4b=pV:b2GyvJRof^?[oK69aPL\\0gXFIUFNGby0VV1:>08jWofO[zqhw:nfO^QQDF4QZwOj1jde[ZV41dDVa;lwv46yBna7SWKi5ON[wN6\\h3Um@q8S9rnf^cXG1l]4M:RPkqqO`H8OyOcl?o__=2b\\OG8TJ>e5idcxhV99o8]o;7",
+		"query":"SELECT CAST(OrganizationKey as TEXT) Id, \r\n\tCAST(ParentOrganizationKey as TEXT) Parent, \t\r\n\tOrganizationName Name,\r\n\tPercentageOfOwnership Ownership, \r\n\tCurrencyAlternateKey Currency\r\nFROM DimOrganization a\r\n\tINNER JOIN DimCurrency b ON a.CurrencyKey = b.CurrencyKey\r\nORDER BY CAST(a.ParentOrganizationKey as NUMBER), CAST(a.OrganizationKey as NUMBER)",
+		"userName":"",
+		"usesUnicode":true
+	},
+	"Parameters":[],
+	"Variables":
+	[
+		{
+			"Name":"Id",
+			"Type":"String",
+			"Position":1,
+			"StartByte":0,
+			"EndByte":0
+		},
+		{
+			"Name":"Parent",
+			"Type":"String",
+			"Position":2,
+			"StartByte":0,
+			"EndByte":0
+		},
+		{
+			"Name":"Name",
+			"Type":"String",
+			"Position":3,
+			"StartByte":0,
+			"EndByte":0
+		},
+		{
+			"Name":"Ownership",
+			"Type":"Numeric",
+			"Position":4,
+			"StartByte":0,
+			"EndByte":0
+		},
+		{
+			"Name":"Currency",
+			"Type":"String",
+			"Position":5,
+			"StartByte":0,
+			"EndByte":0
+		}
+	]
+}

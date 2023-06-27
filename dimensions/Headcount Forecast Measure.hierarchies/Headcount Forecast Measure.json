@@ -1,0 +1,12 @@
+{
+	"@type":"Hierarchy",
+	"Name":"Headcount Forecast Measure",
+	"Elements":
+	[
+		{
+			"Name":"FTE",
+			"Type":"Numeric"
+		}
+	],
+	"Subsets@Code.links":[]
+}

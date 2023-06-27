@@ -1,0 +1,150 @@
+#region Prolog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+## This Process builds the Product Dimension and its consolidations from SQL DW ##
+
+## CONSTANTS ##
+cDimName = 'Product';
+cTopNode1 = 'All Products by Category';
+cTopNode2 = 'All Products';
+
+## Create Dimension if it does not exist ##
+If ( DimensionExists (cDimName ) = 0 ) ;
+  DimensionCreate(cDimName);
+ENDIF;
+
+DimensionSortOrder(cDimName,'ByName','Ascending','ByHierarchy','Ascending');
+
+
+## Insert Top Node of Consolidations ##
+DimensionElementInsert(cDimName,'',cTopNode1,'C');
+DimensionElementInsert(cDimName,'',cTopNode2,'C');
+
+## Unwind Dimension ##
+# Iterate through dimensions and for each consolidated element, disconnect its components
+nElementCount = DIMSIZ ( cDimName );
+iCount = 1;
+
+WHILE ( iCount <= nElementCount );
+  sElement = DIMNM ( cDimName, iCount );
+  IF ( DTYPE ( cDimName, sElement ) @= 'C' );
+    nChildren = ELCOMPN ( cDimName, sElement );
+    iChild = nChildren;
+    WHILE ( iChild > 0 );
+      sChild = ELCOMP ( cDimName, sElement, iChild );
+      DimensionElementComponentDelete ( cDimName, sElement, sChild );
+      iChild = iChild - 1;
+    END;
+  ENDIF;
+  iCount = iCount + 1;
+END;
+
+
+
+
+
+
+## Insert Attributes ##
+cAttr1 = 'Code&Description';
+cAttr2 = 'French Description';
+cattr3 = 'Spanish Description';
+
+AttrInsert(cDimName,'',cAttr1,'A');
+AttrInsert(cDimName,'',cAttr2,'A');
+AttrInsert(cDimName,'',cAttr3,'A');
+
+
+
+
+#endregion
+#region Metadata
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+## CLEAN METADATA ##
+sProduct = NumberToString(vProductKey);
+sSubCategory = Trim(vEnglishproductsubcategoryname);
+sCategory = Trim(vEnglishproductcategoryname);
+
+
+#### Consolidation 1 ####
+## Insert N Level elements ##
+DimensionElementInsert(cDimName,'',sProduct,'N');
+
+## Insert Sub-Category ##
+DimensionElementInsert(cDimName,'',sSubCategory,'C');
+
+## Insert Category ##
+DimensionElementInsert(cDimName,'',sCategory,'C');
+
+## Assign Parent Child Relationship ##
+DimensionElementComponentAdd(cDimName,sSubCategory,sProduct,1);
+DimensionElementComponentAdd(cDimName,sCategory,sSubCategory,1);
+DimensionElementComponentAdd(cDimName,cTopNode1,sCategory,1);
+
+## Consolidation 2 ##
+DimensionElementComponentAdd(cDimName,cTopNode2,sProduct,1);
+
+
+
+
+
+
+
+
+
+#endregion
+#region Data
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+
+## CLEAN METADATA ##
+sProduct = NumberToString(vProductKey);
+sSubCategory = Trim(vEnglishproductsubcategoryname);
+sCategory = Trim(vEnglishproductcategoryname);
+sProdDesc = Trim(vEnglishproductname);
+
+## Insert Attributes ##
+
+# 1. Product alias #
+cAttr = 'Code&Description';
+sValue = sProduct | ' - '  | sProdDesc ;
+AttrPutS(sValue,cDimName,sProduct,cAttr);
+
+# 2. French Description
+cAttr = 'French Description';
+sValue = sProduct | ' ' | vFrenchproductname;
+AttrPutS(sValue,cDimName,sProduct,cAttr);
+
+cAttr = 'French Description';
+sValue = sSubCategory | ' ' | vFrenchproductsubcategoryname;
+AttrPutS(sValue,cDimName,sSubCategory,cAttr);
+
+cAttr = 'French Description';
+sValue = sCategory | ' ' | vFrenchproductcategoryname;
+AttrPutS(sValue,cDimName,sCategory,cAttr);
+
+# 3. Spanish Description
+cAttr = 'Spanish Description';
+sValue = sProduct | ' ' | vSpanishproductname;
+AttrPutS(sValue,cDimName,sProduct,cAttr);
+
+cAttr = 'Spanish Description';
+sValue = sSubCategory | ' ' | vSpanishproductsubcategoryname;
+AttrPutS(sValue,cDimName,sSubCategory,cAttr);
+
+cAttr = 'Spanish Description';
+sValue = sCategory | ' ' | vSpanishproductcategoryname;
+AttrPutS(sValue,cDimName,sCategory,cAttr);
+
+#endregion
+#region Epilog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion

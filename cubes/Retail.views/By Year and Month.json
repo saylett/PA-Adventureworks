@@ -1,0 +1,185 @@
+{
+	"@type":"NativeView",
+	"Name":"By Year and Month",
+	"Columns":
+	[
+		{
+			"Subset":
+			{
+				"Hierarchy":
+				{
+					"@id":"Dimensions('Year')/Hierarchies('Year')"
+				},
+				"Expression":"TM1SubsetAll([Year])"
+			}
+		}
+	],
+	"Rows":
+	[
+		{
+			"Subset":
+			{
+				"@id":"Dimensions('Period')/Hierarchies('Period')/Subsets('Default')"
+			}
+		}
+	],
+	"Titles":
+	[
+		{
+			"Subset":
+			{
+				"Hierarchy":
+				{
+					"@id":"Dimensions('Version')/Hierarchies('Version')"
+				},
+				"Elements":
+				[
+					{
+						"@id":"Dimensions('Version')/Hierarchies('Version')/Elements('1')"
+					},
+					{
+						"@id":"Dimensions('Version')/Hierarchies('Version')/Elements('2')"
+					},
+					{
+						"@id":"Dimensions('Version')/Hierarchies('Version')/Elements('3')"
+					}
+				]
+			},
+			"Selected":
+			{
+				"@id":"Dimensions('Version')/Hierarchies('Version')/Elements('1')"
+			}
+		},
+		{
+			"Subset":
+			{
+				"Hierarchy":
+				{
+					"@id":"Dimensions('Retail Measure')/Hierarchies('Retail Measure')"
+				},
+				"Elements":
+				[
+					{
+						"@id":"Dimensions('Retail Measure')/Hierarchies('Retail Measure')/Elements('Order Quantity')"
+					},
+					{
+						"@id":"Dimensions('Retail Measure')/Hierarchies('Retail Measure')/Elements('Unit Price')"
+					},
+					{
+						"@id":"Dimensions('Retail Measure')/Hierarchies('Retail Measure')/Elements('Product Standard Cost')"
+					},
+					{
+						"@id":"Dimensions('Retail Measure')/Hierarchies('Retail Measure')/Elements('Total Product Cost')"
+					},
+					{
+						"@id":"Dimensions('Retail Measure')/Hierarchies('Retail Measure')/Elements('Sales Amount')"
+					},
+					{
+						"@id":"Dimensions('Retail Measure')/Hierarchies('Retail Measure')/Elements('Tax Amount')"
+					},
+					{
+						"@id":"Dimensions('Retail Measure')/Hierarchies('Retail Measure')/Elements('Freight')"
+					}
+				]
+			},
+			"Selected":
+			{
+				"@id":"Dimensions('Retail Measure')/Hierarchies('Retail Measure')/Elements('Sales Amount')"
+			}
+		},
+		{
+			"Subset":
+			{
+				"@id":"Dimensions('Currency')/Hierarchies('Currency')/Subsets('Default')"
+			},
+			"Selected":
+			{
+				"@id":"Dimensions('Currency')/Hierarchies('Currency')/Elements('USD')"
+			}
+		},
+		{
+			"Subset":
+			{
+				"Hierarchy":
+				{
+					"@id":"Dimensions('Region')/Hierarchies('Region')"
+				},
+				"Expression":"TM1SubsetAll([Region])"
+			},
+			"Selected":
+			{
+				"@id":"Dimensions('Region')/Hierarchies('Region')/Elements('1')"
+			}
+		},
+		{
+			"Subset":
+			{
+				"Hierarchy":
+				{
+					"@id":"Dimensions('Product')/Hierarchies('Product')"
+				},
+				"Elements":
+				[
+					{
+						"@id":"Dimensions('Product')/Hierarchies('Product')/Elements('All Products by Category')"
+					},
+					{
+						"@id":"Dimensions('Product')/Hierarchies('Product')/Elements('Accessories')"
+					},
+					{
+						"@id":"Dimensions('Product')/Hierarchies('Product')/Elements('Bike Racks')"
+					},
+					{
+						"@id":"Dimensions('Product')/Hierarchies('Product')/Elements('Bike Stands')"
+					},
+					{
+						"@id":"Dimensions('Product')/Hierarchies('Product')/Elements('Bottles and Cages')"
+					},
+					{
+						"@id":"Dimensions('Product')/Hierarchies('Product')/Elements('Cleaners')"
+					},
+					{
+						"@id":"Dimensions('Product')/Hierarchies('Product')/Elements('Fenders')"
+					},
+					{
+						"@id":"Dimensions('Product')/Hierarchies('Product')/Elements('Helmets')"
+					},
+					{
+						"@id":"Dimensions('Product')/Hierarchies('Product')/Elements('Hydration Packs')"
+					},
+					{
+						"@id":"Dimensions('Product')/Hierarchies('Product')/Elements('Lights')"
+					},
+					{
+						"@id":"Dimensions('Product')/Hierarchies('Product')/Elements('Locks')"
+					},
+					{
+						"@id":"Dimensions('Product')/Hierarchies('Product')/Elements('Panniers')"
+					},
+					{
+						"@id":"Dimensions('Product')/Hierarchies('Product')/Elements('Pumps')"
+					},
+					{
+						"@id":"Dimensions('Product')/Hierarchies('Product')/Elements('Tires and Tubes')"
+					},
+					{
+						"@id":"Dimensions('Product')/Hierarchies('Product')/Elements('Bikes')"
+					},
+					{
+						"@id":"Dimensions('Product')/Hierarchies('Product')/Elements('Clothing')"
+					},
+					{
+						"@id":"Dimensions('Product')/Hierarchies('Product')/Elements('Components')"
+					}
+				]
+			},
+			"Selected":
+			{
+				"@id":"Dimensions('Product')/Hierarchies('Product')/Elements('All Products by Category')"
+			}
+		}
+	],
+	"SuppressEmptyColumns":true,
+	"SuppressEmptyRows":true,
+	"FormatString":"0.#########"
+}

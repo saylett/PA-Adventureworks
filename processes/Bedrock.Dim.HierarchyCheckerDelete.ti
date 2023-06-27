@@ -1,0 +1,127 @@
+#region Prolog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+#This process deletes the cube and dimensions created by the Bedrock.Dim.HierarchyChecker process
+
+### DEBUG CODE
+
+### Constants ###
+
+cProcess = 'Bedrock.Dim.HierarchyCheckerDelete';
+cTimeStamp = TimSt( Now, '\Y\m\d\h\i\s' );
+cDebugFile = GetProcessErrorFileDirectory | cProcess | '.' | cTimeStamp | '.';
+
+### Initialise Debug ###
+
+If( pDebug >= 1 );
+
+  # Set debug file name
+  sDebugFile = cDebugFile | 'Prolog.debug';
+
+  # Log start time
+  AsciiOutput( sDebugFile, 'Process Started: ' | TimSt( Now, '\d-\m-\Y \h:\i:\s' ) );
+
+  # Log parameters
+  AsciiOutput( sDebugFile, 'Parameters: pDim : ' | pDim );
+EndIf;
+
+
+### Validate Parameters ###
+
+nErrors = 0;
+
+# Validate dimension
+If( Trim( pDim ) @= '' );
+  nErrors = 1;
+  sMessage = 'No dimension specified';
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  DataSourceType = 'NULL';
+  ItemReject( sMessage );
+EndIf;
+If( DimensionExists( pDim ) = 0 );
+  nErrors = 1;
+  sMessage = 'Dimension: ' | pDim | ' does not exist';
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  DataSourceType = 'NULL';
+  ItemReject( sMessage );
+EndIf;
+
+If( nErrors <> 0 );
+  ProcessBreak;
+EndIf;
+
+### End Debug Code
+
+sDimUnwound =  'BedrockTempDim_Hierarchy Checker Unwound ' | pDim;
+sDimUnwoundParent =  'BedrockTempDim_Hierarchy Checker Unwound Parent ' | pDim;
+sDimMeasure =  'BedrockTempDim_Hierarchy Checker Measure ' | pDim;
+sCubeName = 'BedrockTempCube_Hierarchy Checker ' | pDim;
+
+if(cubeexists(sCubeName) = 1);
+  CubeDestroy(sCubeName);
+EndIf;
+
+# In case the dimension name changes double check that each dimension exists before destoying
+sDimName = sDimUnwound;
+If(DimensionExists(sDimName) = 1);
+    DimensionDestroy(sDimName);
+EndIf;
+
+sDimName = sDimUnwoundParent;
+If(DimensionExists(sDimName) = 1);
+    DimensionDestroy(sDimName);
+EndIf;
+
+sDimName = sDimMeasure;
+If(DimensionExists(sDimName) = 1);
+    DimensionDestroy(sDimName);
+EndIf;
+#endregion
+#region Metadata
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Data
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Epilog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+### Initialise Debug ###
+
+If( pDebug >= 1 );
+
+  # Set debug file name
+  sDebugFile = cDebugFile | 'Epilog.debug';
+
+  # Log errors
+  If( nErrors <> 0 );
+    AsciiOutput( sDebugFile, 'Errors Occurred' );
+  EndIf;
+
+  # Log finish time
+  AsciiOutput( sDebugFile, 'Process Finished: ' | TimSt( Now, '\d-\m-\Y \h:\i:\s' ) );
+
+EndIf;
+
+
+### If errors occurred terminate process with a major error status ###
+
+If( nErrors <> 0 );
+  ProcessQuit;
+EndIf;
+
+
+### End Debug ###
+#endregion

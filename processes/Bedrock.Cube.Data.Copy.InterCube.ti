@@ -1,0 +1,1641 @@
+#region Prolog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+#####################################################################################
+##~~Copyright bedrocktm1.org 2011 www.bedrocktm1.org/how-to-licence.php ~~##
+#####################################################################################
+
+# This is the INTER process used to copy to a different cube
+# Not to be confused with the INTRA process which is used within a cube
+
+# This process is used to copy data from a source cube to a target cube
+# The target cube may have more or less or the same number of dimensions as the source cube
+# Where the target and source cubes share the same dimensions, the process will match the dimensions
+# even if their position in the cube is different
+# An input element must be specified for each dimension which is in the target but not in the source
+# using the parameter pMappingToNewDims
+# The format of parameter pMappingToNewDims using default delimiters & and : is
+#    DimInTargetButNotSource1:ElementOfDim & DimInTargetButNotSource2:ElementOfDim
+# The input element must be an N level unless pSuppressConsol is set to 0.
+
+# For dimensions in the source but not the target, the process will accumulate the values of all n level elements
+# (or all n level elements specified by the pFilter parameter)
+
+# The pFilter parameter contains the dimensons and elements to be used for filtering the source cube
+# The format of the pFilter parameter is as follows, using default delimiters & + :
+#     Dim1: Elem1 + Elem2 & Dim2: Elem3 + Elem4
+# The dimension parameters do not need to be given in the index order of dimensions in the cube.
+# The dimension name is specified as the first member of the delimited string of elements.
+# If consolidations are skipped the N level children of any consolidated filter elements will be used
+# Spaces are ignored so use them to make your filter more readable
+
+# An example
+# To copy the 2011 Actual Sales data from the Sales cube to the General Ledger cube
+# set pFilter to Year: 2011 & Version: Actual
+# Say the General Ledger cube has an Account dimension but the Sales cube doesn't.
+# The Account for sales is 9999 (an n level element)
+# so set the pMappingToNewDims parameter to Account:9999
+# This will copy all Actual 2011 Sales to Account 9999 in the General Ledger
+# If only sales for Company X are to be copied, set pFilter to Year: 2011 & Version: Actual & Company:X
+# If sales from other companies are already in the General Ledger,
+# set pZeroTarget to 0 to add Company X's data to the existing data
+# Setting pZeroTarget to 1 will clear our data in the target cube for the elements specified in the
+# pMappingToNewDims parameter and the pFilter parameter for dimensions that are in the target.
+
+### Constants ###
+
+cProcess = 'Bedrock.Cube.Data.Copy.InterCube';
+cTimeStamp = TimSt( Now, '\Y\m\d\h\i\s' );
+cDebugFile = GetProcessErrorFileDirectory | cProcess | '.' | cTimeStamp | '.';
+cUser = TM1User();
+cRandomInt = NumberToString( INT( RAND( ) * 1000 ));
+sDelimDim = TRIM(pDimensionDelim);
+sElementStartDelim = TRIM(pElementStartDelim);
+sDelimElem = TRIM(pElementDelim);
+nErrors = 0;
+nRulesDropped = 0;
+### Initialise Debug ###
+
+If( pDebug >= 1 );
+
+  # Set debug file name
+  sDebugFile = cDebugFile | 'Prolog.debug';
+
+  # Log start time
+  AsciiOutput( sDebugFile, 'Process Started: ' | TimSt( Now, '\d-\m-\Y \h:\i:\s' ) );
+
+  # Log parameters
+  AsciiOutput( sDebugFile, 'Parameters: pSourceCube         : ' | pSourceCube );
+
+  AsciiOutput( sDebugFile, '            pFilter           : ' | pFilter );
+  AsciiOutput( sDebugFile, '            pTargetCube     : ' | pTargetCube );
+  AsciiOutput( sDebugFile, '            pMappingToNewDims     : ' | pMappingToNewDims );
+
+  AsciiOutput( sDebugFile, '            pFactor      : ' |  pFactor );
+
+  AsciiOutput( sDebugFile, '            pSuppressConsol      : ' | NumberToString( pSuppressConsol) );
+  AsciiOutput( sDebugFile, '            pSuppressRules        : ' | NumberToString( pSuppressRules) );
+
+
+
+  AsciiOutput( sDebugFile, '            pZeroTarget    : ' | NumberToString( pZeroTarget ) );
+  AsciiOutput( sDebugFile, '            pZeroSource    : ' | NumberToString( pZeroSource ) );
+
+  AsciiOutput( sDebugFile, '            pDimensionDelim   : ' | pDimensionDelim );
+  AsciiOutput( sDebugFile, '            pElementStartDelim: ' | pElementStartDelim );
+  AsciiOutput( sDebugFile, '            pElementDelim     : ' | pElementDelim );
+
+  AsciiOutput( sDebugFile, '            pDeleteViewsAndSubsets    : ' | NumberToString( pDeleteViewsAndSubsets ) );
+  AsciiOutput( sDebugFile, '            pView         : ' | pView );
+  AsciiOutput( sDebugFile, '            pDebug       : ' | NumberToString( pDebug) );
+
+EndIf;
+
+#Convert pFactor to a number
+nFactor = StringToNumber(pFactor);
+
+# If specified source cube doesn't exist then terminate process
+If( CubeExists(   pSourceCube   ) = 0 );
+  sMessage = 'Source Cube: ' | pSourceCube | ' does not exist';
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  nErrors = nErrors + 1;
+  ItemReject( sMessage );
+EndIf;
+
+# If specified target cube doesn't exist then terminate process
+If( CubeExists(   pTargetCube   ) = 0 );
+  sMessage = 'Target Cube: ' | pTargetCube | ' does not exist';
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  nErrors = nErrors + 1;
+  ItemReject( sMessage );
+EndIf;
+
+# A view name wasn't provided, so just use a timestamp
+If( TRIM(pView) @= '' );
+  sMessage = 'A view name was not provided';
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  sRandomInt = NumberToString( INT( RAND( ) * 1000));
+  pView = cProcess | cTimeStamp | sRandomInt;
+EndIf;
+
+sSubset = pView;
+sTargetView = 'Target '| pView;
+sTargetSubset = sTargetView;
+
+# Check if there is a rules file to drop
+# if not, ignore the pDropAndReattachRules parameter and proceed without dropping the rules
+If(pDropAndReattachRules = 1);
+    sRuleFile = pTargetCube | '.rux';
+    If( FileExists( sRuleFile ) <> 1 );
+      If( pDebug >= 1 );
+        AsciiOutput( sDebugFile, 'Rule file not found' );
+      EndIf;
+      pDropAndReattachRules = 0;
+    EndIf;
+EndIf;
+##########################################################################################################################################
+### Find the variable in the source cube to pair with each dimension in the target cube (if dimension is in both the source and the target)
+sSourceVariableForTargetV1 = '';
+sSourceVariableForTargetV2 = '';
+sSourceVariableForTargetV3 = '';
+sSourceVariableForTargetV4 = '';
+sSourceVariableForTargetV5 = '';
+sSourceVariableForTargetV6 = '';
+sSourceVariableForTargetV7 = '';
+sSourceVariableForTargetV8 = '';
+sSourceVariableForTargetV9 = '';
+sSourceVariableForTargetV10 = '';
+sSourceVariableForTargetV11 = '';
+sSourceVariableForTargetV12 = '';
+sSourceVariableForTargetV13 = '';
+sSourceVariableForTargetV14 = '';
+sSourceVariableForTargetV15 = '';
+sSourceVariableForTargetV16 = '';
+sSourceVariableForTargetV17 = '';
+sSourceVariableForTargetV18 = '';
+sSourceVariableForTargetV19 = '';
+sSourceVariableForTargetV20 = '';
+sSourceVariableForTargetV21 = '';
+sSourceVariableForTargetV22 = '';
+sSourceVariableForTargetV23 = '';
+sSourceVariableForTargetV24 = '';
+sSourceVariableForTargetV25 = '';
+sSourceVariableForTargetV26 = '';
+sSourceVariableForTargetV27 = '';
+sSourceVariableForTargetV28 = '';
+
+sTargetV1 = '';
+sTargetV2 = '';
+sTargetV3 = '';
+sTargetV4 = '';
+sTargetV5 = '';
+sTargetV6 = '';
+sTargetV7 = '';
+sTargetV8 = '';
+sTargetV9 = '';
+sTargetV10 = '';
+sTargetV11 = '';
+sTargetV12 = '';
+sTargetV13 = '';
+sTargetV14 = '';
+sTargetV15 = '';
+sTargetV16 = '';
+sTargetV17 = '';
+sTargetV18 = '';
+sTargetV19 = '';
+sTargetV20 = '';
+sTargetV21 = '';
+sTargetV22 = '';
+sTargetV23 = '';
+sTargetV24 = '';
+sTargetV25 = '';
+sTargetV26 = '';
+sTargetV27 = '';
+sTargetV28 = '';
+
+nSourceIndex = 1;
+
+While( TabDim( pSourceCube, nSourceIndex ) @<> '' );
+
+  sSourceDim = TabDim( pSourceCube, nSourceIndex);
+
+    # reset target index if another source dimension has been found
+    nTargetIndex = 1;
+
+    WHILE(TabDim( pTargetCube, nTargetIndex ) @<> '');
+
+      sTargetDim = TabDim( pTargetCube, nTargetIndex );
+
+
+      If(sSourceDim @= sTargetDim);
+        If(nTargetIndex = 1);
+            sSourceVariableForTargetV1  = 'V' | NumberToString(nSourceIndex);
+          ElseIf(nTargetIndex = 2);
+            sSourceVariableForTargetV2  = 'V' | NumberToString(nSourceIndex);
+          ElseIf(nTargetIndex = 3);
+            sSourceVariableForTargetV3  = 'V' | NumberToString(nSourceIndex);
+          ElseIf(nTargetIndex = 4);
+            sSourceVariableForTargetV4  = 'V' | NumberToString(nSourceIndex);
+          ElseIf(nTargetIndex = 5);
+            sSourceVariableForTargetV5  = 'V' | NumberToString(nSourceIndex);
+          ElseIf(nTargetIndex = 6);
+            sSourceVariableForTargetV6  = 'V' | NumberToString(nSourceIndex);
+          ElseIf(nTargetIndex = 7);
+            sSourceVariableForTargetV7  = 'V' | NumberToString(nSourceIndex);
+          ElseIf(nTargetIndex = 8);
+            sSourceVariableForTargetV8  = 'V' | NumberToString(nSourceIndex);
+          ElseIf(nTargetIndex = 9);
+            sSourceVariableForTargetV9  = 'V' | NumberToString(nSourceIndex);
+          ElseIf(nTargetIndex = 10);
+            sSourceVariableForTargetV10  = 'V' | NumberToString(nSourceIndex);
+          ElseIf(nTargetIndex = 11);
+            sSourceVariableForTargetV11  = 'V' | NumberToString(nSourceIndex);
+          ElseIf(nTargetIndex = 12);
+            sSourceVariableForTargetV12  = 'V' | NumberToString(nSourceIndex);
+          ElseIf(nTargetIndex = 13);
+            sSourceVariableForTargetV13  = 'V' | NumberToString(nSourceIndex);
+          ElseIf(nTargetIndex = 14);
+            sSourceVariableForTargetV14  = 'V' | NumberToString(nSourceIndex);
+          ElseIf(nTargetIndex = 15);
+            sSourceVariableForTargetV15  = 'V' | NumberToString(nSourceIndex);
+          ElseIf(nTargetIndex = 16);
+            sSourceVariableForTargetV16  = 'V' | NumberToString(nSourceIndex);
+          ElseIf(nTargetIndex = 17);
+            sSourceVariableForTargetV17  = 'V' | NumberToString(nSourceIndex);
+          ElseIf(nTargetIndex = 18);
+            sSourceVariableForTargetV18  = 'V' | NumberToString(nSourceIndex);
+          ElseIf(nTargetIndex = 19);
+            sSourceVariableForTargetV19  = 'V' | NumberToString(nSourceIndex);
+          ElseIf(nTargetIndex = 20);
+            sSourceVariableForTargetV20  = 'V' | NumberToString(nSourceIndex);
+          ElseIf(nTargetIndex = 21);
+            sSourceVariableForTargetV21  = 'V' | NumberToString(nSourceIndex);
+          ElseIf(nTargetIndex = 22);
+            sSourceVariableForTargetV22  = 'V' | NumberToString(nSourceIndex);
+          ElseIf(nTargetIndex = 23);
+            sSourceVariableForTargetV23  = 'V' | NumberToString(nSourceIndex);
+          ElseIf(nTargetIndex = 24);
+            sSourceVariableForTargetV24  = 'V' | NumberToString(nSourceIndex);
+          ElseIf(nTargetIndex = 25);
+            sSourceVariableForTargetV25  = 'V' | NumberToString(nSourceIndex);
+          ElseIf(nTargetIndex = 26);
+            sSourceVariableForTargetV26  = 'V' | NumberToString(nSourceIndex);
+          ElseIf(nTargetIndex = 27);
+            sSourceVariableForTargetV27  = 'V' | NumberToString(nSourceIndex);
+        EndIf;
+
+      EndIf;
+
+      nTargetIndex = nTargetIndex + 1;
+
+    END;
+
+  nSourceIndex = nSourceIndex + 1;
+
+END;
+
+# The last variable in the data source holds the values
+# which need to be mapped to the last variable in the target
+# because of the + 1 at the end of the while loop, at this point in the process
+# the target index is 1 more than the number of target dimensions
+# and the source index is 1 more than the number of source dimensions
+
+# this is a repeat of the code above
+# it is kept out of the loop above because it only needs to run once
+# rather than once for every dimension in the source cube
+
+If(nTargetIndex = 1);
+    sSourceVariableForTargetV1  = 'V' | NumberToString(nSourceIndex);
+  ElseIf(nTargetIndex = 2);
+    sSourceVariableForTargetV2  = 'V' | NumberToString(nSourceIndex);
+  ElseIf(nTargetIndex = 3);
+    sSourceVariableForTargetV3  = 'V' | NumberToString(nSourceIndex);
+  ElseIf(nTargetIndex = 4);
+    sSourceVariableForTargetV4  = 'V' | NumberToString(nSourceIndex);
+  ElseIf(nTargetIndex = 5);
+    sSourceVariableForTargetV5  = 'V' | NumberToString(nSourceIndex);
+  ElseIf(nTargetIndex = 6);
+    sSourceVariableForTargetV6  = 'V' | NumberToString(nSourceIndex);
+  ElseIf(nTargetIndex = 7);
+    sSourceVariableForTargetV7  = 'V' | NumberToString(nSourceIndex);
+  ElseIf(nTargetIndex = 8);
+    sSourceVariableForTargetV8  = 'V' | NumberToString(nSourceIndex);
+  ElseIf(nTargetIndex = 9);
+    sSourceVariableForTargetV9  = 'V' | NumberToString(nSourceIndex);
+  ElseIf(nTargetIndex = 10);
+    sSourceVariableForTargetV10  = 'V' | NumberToString(nSourceIndex);
+  ElseIf(nTargetIndex = 11);
+    sSourceVariableForTargetV11  = 'V' | NumberToString(nSourceIndex);
+  ElseIf(nTargetIndex = 12);
+    sSourceVariableForTargetV12  = 'V' | NumberToString(nSourceIndex);
+  ElseIf(nTargetIndex = 13);
+    sSourceVariableForTargetV13  = 'V' | NumberToString(nSourceIndex);
+  ElseIf(nTargetIndex = 14);
+    sSourceVariableForTargetV14  = 'V' | NumberToString(nSourceIndex);
+  ElseIf(nTargetIndex = 15);
+    sSourceVariableForTargetV15  = 'V' | NumberToString(nSourceIndex);
+  ElseIf(nTargetIndex = 16);
+    sSourceVariableForTargetV16  = 'V' | NumberToString(nSourceIndex);
+  ElseIf(nTargetIndex = 17);
+    sSourceVariableForTargetV17  = 'V' | NumberToString(nSourceIndex);
+  ElseIf(nTargetIndex = 18);
+    sSourceVariableForTargetV18  = 'V' | NumberToString(nSourceIndex);
+  ElseIf(nTargetIndex = 19);
+    sSourceVariableForTargetV19  = 'V' | NumberToString(nSourceIndex);
+  ElseIf(nTargetIndex = 20);
+    sSourceVariableForTargetV20  = 'V' | NumberToString(nSourceIndex);
+  ElseIf(nTargetIndex = 21);
+    sSourceVariableForTargetV21  = 'V' | NumberToString(nSourceIndex);
+  ElseIf(nTargetIndex = 22);
+    sSourceVariableForTargetV22  = 'V' | NumberToString(nSourceIndex);
+  ElseIf(nTargetIndex = 23);
+    sSourceVariableForTargetV23  = 'V' | NumberToString(nSourceIndex);
+  ElseIf(nTargetIndex = 24);
+    sSourceVariableForTargetV24  = 'V' | NumberToString(nSourceIndex);
+  ElseIf(nTargetIndex = 25);
+    sSourceVariableForTargetV25  = 'V' | NumberToString(nSourceIndex);
+  ElseIf(nTargetIndex = 26);
+    sSourceVariableForTargetV26  = 'V' | NumberToString(nSourceIndex);
+  ElseIf(nTargetIndex = 27);
+    sSourceVariableForTargetV27  = 'V' | NumberToString(nSourceIndex);
+
+  # a cube with 27 dimensions uses V28 to hold the values
+  ElseIf(nTargetIndex = 28);
+    sSourceVariableForTargetV28  = 'V' | NumberToString(nSourceIndex);
+
+EndIf;
+
+# now deduct 1 to set these indices to the number of dimensions in each cube
+nSourceCubeDimensionCount = nSourceIndex - 1;
+
+nTargetCubeDimensionCount = nTargetIndex - 1;
+
+#############################################################################################################################
+### Split MappingToNewDims parameter in order to get the input elements for dimensions in target but not source           ###
+sElementMapping = TRIM( pMappingToNewDims );
+nChar = 1;
+nCharCount = LONG( sElementMapping );
+
+sWord = '';
+sLastDelim = '';
+nIndex = 1;
+
+# Add a trailing element delimiter so that the last element is picked up
+If( nCharCount > 0 );
+  sElementMapping = sElementMapping | sDelimElem;
+  nCharCount = nCharCount + LONG(sDelimElem);
+EndIf;
+
+WHILE (nChar <= nCharCount);
+    sChar = SUBST( sElementMapping, nChar, 1);
+    If( pDebug >= 1 );
+      sMessage = 'Next character is: ' | sChar | ' at ' | NumberToString(nChar);
+      AsciiOutput( sDebugFile, sMessage );
+    EndIf;
+
+    # Used for delimiters, required for multiple character delimiters
+    sDelim = '';
+    nAddExtra = 0;
+
+    # Ignore spaces
+    IF (TRIM(sChar) @<> '' );
+
+      ### Dimension Name ###
+
+      # If the delimiter is more than 1 character peek ahead the same amount
+      # Ignore the first character
+      sDelim = sChar;
+      nCount = LONG(sElementStartDelim) - 1;
+      If( nCount > 0 & nChar + nCount <= nCharCount );
+        # Add the extra characters
+        sDelim = sDelim | SUBST( sElementMapping, nChar + 1, nCount);
+        # Move to the end of the delimter
+        nAddExtra = nCount;
+      EndIf;
+
+      If( sDelim @= sElementStartDelim );
+
+        sChar = sDelim;
+
+        If( sLastDelim @<> '' & sLastDelim @<> sDelimDim );
+            sMessage = 'The name of a dimension must follow a dimension delimiter (' | sDelimDim | ')';
+            If( pDebug >= 1 );
+              AsciiOutput( sDebugFile, sMessage );
+            EndIf;
+            ItemReject(sMessage);
+        EndIf;
+
+        # Found a dimension
+        sDimension = sWord;
+
+        If( pDebug >= 1 );
+          sMessage = 'Found dimension name: ' | sDimension | ' at ' | NumberToString(nChar);
+          AsciiOutput( sDebugFile, sMessage );
+        EndIf;
+
+        If( DimensionExists( sDimension ) = 0 );
+            # The dimension does not exist in the model. Cancel process
+            sMessage = 'Dimension: ' | sDimension | ' does not exist';
+            If( pDebug >= 1 );
+              AsciiOutput( sDebugFile, sMessage );
+            EndIf;
+            nErrors = nErrors + 1;
+            ItemReject( sMessage );
+        EndIf;
+
+        # Find the index of the dimension is in the Target cube
+        nTargetIndexCounter = 1;
+
+        WHILE(nTargetIndexCounter <= nTargetCubeDimensionCount );
+          sNthDimension = TabDim( pTargetCube, nTargetIndexCounter );
+
+          If(sDimension @= sNthDimension);
+            nTargetIndex = nTargetIndexCounter;
+
+            AsciiOutput( sDebugFile, 'Target Index: ' | numbertostring(ntargetIndex) );
+
+            nTargetIndexCounter = 1000;
+          EndIf;
+
+          nTargetIndexCounter = nTargetIndexCounter + 1;
+        END;
+
+#        If( nTargetIndexCounter = nTargetCubeDimensionCount + 1);
+#            # The dimension does not exist in the cube. Cancel process
+#            sMessage = 'Dimension: ' | sDimension | ' does not exist in the target cube';
+#            If( pDebug >= 1 );
+#              AsciiOutput( sDebugFile, sMessage );
+#            EndIf;
+#            nErrors = nErrors + 1;
+#            ItemReject( sMessage );
+#        EndIf;
+
+        # The variable nElementCount is used to keep track of how many elements there are per dimension
+        # There should only be 1 input element per dimension
+
+        # A new dimension has been found so reset the element count so
+        # the code can tell how many elements have been specified for each dimension
+
+        nElementCount = 1;
+
+        sLastDelim = sChar;
+        # Clear the word
+        sWord = '';
+
+      Else;
+
+        # Reset extra chars
+        nAddExtra = 0;
+
+        ### Check both dim delimiter and element delimiter ###
+        nIsDelimiter = 0;
+
+        ## Check dimension delimiter first
+        # If the delimiter is more than 1 character peek ahead the same amount
+        # Ignore the first character
+        sDelim = sChar;
+        nCount = LONG(sDelimDim) - 1;
+        If( nCount > 0 & nChar + nCount <= nCharCount );
+          # Add the extra characters
+          sDelim = sDelim | SUBST( sElementMapping, nChar + 1, nCount);
+          # Move to the end of the delimter
+          nAddExtra = nCount;
+        EndIf;
+
+        If( sDelim @= sDelimDim );
+          nIsDelimiter = 1;
+          sChar = sDelim;
+        Else;
+          # Reset extra chars
+          nAddExtra = 0;
+
+          ## Check element delimiter
+
+          # If the delimiter is more than 1 character peek ahead the same amount
+          # Ignore the first character
+          sDelim = sChar;
+          nCount = LONG(sDelimElem) - 1;
+          If( nCount > 0 & nChar + nCount <= nCharCount );
+            # Add the extra characters
+            sDelim = sDelim | SUBST( sElementMapping, nChar + 1, nCount);
+            # Move to the end of the delimter
+            nAddExtra = nCount;
+          EndIf;
+
+          If( sDelim @= sDelimElem );
+            nIsDelimiter = 1;
+            sChar = sDelim;
+          Else;
+            # Reset extra chars
+            nAddExtra = 0;
+          EndIf;
+
+        EndIf;
+
+        If ( nIsDelimiter = 1 );
+
+          If( sLastDelim @= '' % sLastDelim @= sDelimDim );
+            sMessage = 'An element delimiter must follow a dimension name: ' |  sChar | ' (' | NumberToString(nChar) | ')';
+            If( pDebug >= 1 );
+              AsciiOutput( sDebugFile, sMessage );
+            EndIf;
+            ItemReject( sMessage );
+          EndIf;
+
+
+          # an element has been found
+          sElement = sWord;
+
+          If( pDebug >= 1 );
+            sMessage = 'Inserting element: ' | sElement | ' at ' | NumberToString(nChar);
+            AsciiOutput( sDebugFile, sMessage );
+          EndIf;
+
+          If( DIMIX( sDimension, sElement ) = 0 );
+              # The element does not exist in the dimension. Cancel process
+              sMessage = 'Element: ' | sElement | ' in dimension ' | sDimension | ' does not exist';
+              If( pDebug >= 1 );
+                AsciiOutput( sDebugFile, sMessage );
+              EndIf;
+              nErrors = nErrors + 1;
+              ItemReject( sMessage );
+          EndIf;
+
+          # Allow consolidations only if pSuppressConsol is set to 0
+          # Consolidations may be made allowable
+          # so that you can copy strings between c levels
+
+          If ( DTYPE( sDimension, sElement) @= 'C');
+              sMessage = 'Element: ' | sElement | ' in dimension ' | sDimension | ' is consolidated';
+              If ( pDebug >= 1 );
+                  AsciiOutput( sDebugFile, sMessage );
+              EndIf;
+              # Cancel process if consolidations are to be skipped
+              If(pSuppressConsol = 1);
+                nErrors = nErrors + 1;
+                ProcessBreak;
+              EndIf;
+          EndIf;
+              # Add the element to the source or target attribute depending on whether it's the first or the second element
+              # Get principal name
+              # in case source element and this element are using different aliases
+
+              sElement = DimensionElementPrincipalName(sDimension,sElement);
+
+              # first element
+              IF(nElementCount = 1);
+
+                If ( pDebug >= 1 );
+                    AsciiOutput( sDebugFile, 'Inserting element ' | sElement | ' into source attribute on dimension ' | sDimension);
+                EndIf;
+
+                ### Update the variable for InputElementTargetDimX ######################################
+                If(nTargetIndex = 1);
+                    sTargetV1 = sElement;
+                  ElseIf(nTargetIndex = 2);
+                    sTargetV2 = sElement;
+                  ElseIf(nTargetIndex = 3);
+                    sTargetV3 = sElement;
+                  ElseIf(nTargetIndex = 4);
+                    sTargetV4 = sElement;
+                  ElseIf(nTargetIndex = 5);
+                    sTargetV5 = sElement;
+                  ElseIf(nTargetIndex = 6);
+                    sTargetV6 = sElement;
+                  ElseIf(nTargetIndex = 7);
+                    sTargetV7 = sElement;
+                  ElseIf(nTargetIndex = 8);
+                    sTargetV8 = sElement;
+                  ElseIf(nTargetIndex = 9);
+                    sTargetV9 = sElement;
+                  ElseIf(nTargetIndex = 10);
+                    sTargetV10 = sElement;
+                  ElseIf(nTargetIndex = 11);
+                    sTargetV11 = sElement;
+                  ElseIf(nTargetIndex = 12);
+                    sTargetV12 = sElement;
+                  ElseIf(nTargetIndex = 13);
+                    sTargetV13 = sElement;
+                  ElseIf(nTargetIndex = 14);
+                    sTargetV14 = sElement;
+                  ElseIf(nTargetIndex = 15);
+                    sTargetV15 = sElement;
+                  ElseIf(nTargetIndex = 16);
+                    sTargetV16 = sElement;
+                  ElseIf(nTargetIndex = 17);
+                    sTargetV17 = sElement;
+                  ElseIf(nTargetIndex = 18);
+                    sTargetV18 = sElement;
+                  ElseIf(nTargetIndex = 19);
+                    sTargetV19 = sElement;
+                  ElseIf(nTargetIndex = 20);
+                    sTargetV20 = sElement;
+                  ElseIf(nTargetIndex = 21);
+                    sTargetV21 = sElement;
+                  ElseIf(nTargetIndex = 22);
+                    sTargetV22 = sElement;
+                  ElseIf(nTargetIndex = 23);
+                    sTargetV23 = sElement;
+                  ElseIf(nTargetIndex = 24);
+                    sTargetV24 = sElement;
+                  ElseIf(nTargetIndex = 25);
+                    sTargetV25 = sElement;
+                  ElseIf(nTargetIndex = 26);
+                    sTargetV26 = sElement;
+                  ElseIf(nTargetIndex = 27);
+                    sTargetV27 = sElement;
+                EndIf;
+
+              # later elements
+
+              Else;
+                If ( pDebug >= 1 );
+                  AsciiOutput( sDebugFile, 'There should only be 1 element per dimension');
+                EndIf;
+              EndIf;
+
+
+
+          sLastDelim = sChar;
+
+          # Clear the word
+          sWord = '';
+
+          nElementCount = nElementCount + 1;
+
+        Else;
+          sWord = sWord | sChar;
+        EndIf;
+
+      EndIf;
+
+    EndIf;
+
+    nChar = nChar + nAddExtra + 1;
+
+    If( pDebug >= 1 );
+      sMessage = 'Current word is: ' | sWord | ' at ' | NumberToString(nChar - 1);
+      AsciiOutput( sDebugFile, sMessage );
+    EndIf;
+
+END;
+
+# Check that an input element or variable has been specified for all dimensions in the target cube
+
+ nIndexInTarget = 1;
+    WHILE(nIndexInTarget <= nTargetCubeDimensionCount);
+       sInputElementVariable = 'sTargetV' | NumberToString(nIndexInTarget);
+       sInputElementVariableEnclosed = '%' | sInputElementVariable | '%';
+       sInputElementVariableValue = EXPAND(sInputElementVariableEnclosed);
+
+       sSourceVariable = 'sSourceVariableForTargetV' | NumberToString(nIndexInTarget);
+       sSourceVariableEnclosed = '%' | sSourceVariable | '%';
+       sSourceVariableValue = EXPAND(sSourceVariableEnclosed);
+
+       If(sInputElementVariableValue @= '' & sSourceVariableValue @= '' );
+         # there's no input element and this dimension is not in the source
+          nErrors = nErrors + 1;
+          If( pDebug >= 1 );
+            sTargetDimName = TabDim( pTargetCube,  nIndexInTarget );
+            sMessage = 'Dimension ' | sTargetDimName | ' is missing an input element in pMappingToNewDims';
+            AsciiOutput( sDebugFile, sMessage );
+          EndIf;
+       EndIf;
+       nIndexInTarget = nIndexInTarget + 1;
+    END;
+
+############################# END OF PROCESSING pMappingToNewDims ############################################################3
+
+############################# Clear out target
+
+# Target is cleared for the elements specified in pMappingToNewDims
+# and for the parts of pFilter for dimensions in the target
+# This code works through pFilter looking for the parts relating to the target cube
+# the code which finds indivudual elements has been left in
+# so that it can be changed later to deal with consolidated elements
+
+sFilter = TRIM( pFilter );
+nChar = 1;
+nCharCount = LONG( sFilter );
+sWord = '';
+sLastDelim = '';
+
+
+sTargetFilter = '';
+
+# Add a trailing element delimiter so that the last Dimension:Element/s clause is picked up
+If( nCharCount > 0 );
+  sFilter = sFilter | sDelimElem;
+  nCharCount = nCharCount + LONG(sDelimElem);
+EndIf;
+
+WHILE (nChar <= nCharCount);
+
+    sChar = SUBST( sFilter, nChar, 1);
+
+    If( pDebug >= 1 );
+      sMessage = 'Next character is: ' | sChar | ' at ' | NumberToString(nChar);
+      AsciiOutput( sDebugFile, sMessage );
+    EndIf;
+
+    # Used for delimiters, required for multiple character dilimiters
+    sDelim = '';
+    nAddExtra = 0;
+
+    # Ignore spaces
+    IF (TRIM(sChar) @<> '' );
+
+      ### Dimension Name ###
+
+      # If the delimiter is more than 1 character peek ahead the same amount
+      # Ignore the first character
+      sDelim = sChar;
+      nCount = LONG(sElementStartDelim) - 1;
+      If( nCount > 0 & nChar + nCount <= nCharCount );
+        # Add the extra characters
+        sDelim = sDelim | SUBST( sFilter, nChar + 1, nCount);
+        # Move to the end of the delimter
+        nAddExtra = nCount;
+      EndIf;
+
+      If( sDelim @= sElementStartDelim );
+
+        sChar = sDelim;
+
+        If( sLastDelim @<> '' & sLastDelim @<> sDelimDim );
+            sMessage = 'The name of a dimension must follow a dimension delimiter (' | sDelimDim | ')';
+            If( pDebug >= 1 );
+              AsciiOutput( sDebugFile, sMessage );
+            EndIf;
+            ItemReject(sMessage);
+        EndIf;
+
+        # Found a dimension!
+        sDimension = sWord;
+
+        If( pDebug >= 1 );
+          sMessage = 'Found dimension name: ' | sDimension | ' at ' | NumberToString(nChar);
+          AsciiOutput( sDebugFile, sMessage );
+        EndIf;
+
+        # See if the dimension is in the target cube
+        #If(DIMIX(sTargetDimension, sDimension) > 0);
+          IF(sTargetFilter @<> '');
+            sTargetFilter = sTargetFilter | sDelimDim | sDimension;
+            Else;
+            sTargetFilter = sDimension;
+          EndIf;
+        #EndIf;
+
+        # The variable nElementCount is used to keep track of how many elements there are per dimension
+        # There should only be 1 input element per dimension
+
+        # A new dimension has been found so reset the element count so
+        # the code can tell how many elements have been specified for each dimension
+
+        nElementCount = 1;
+
+        sLastDelim = sChar;
+        # Clear the word
+        sWord = '';
+
+      Else;
+
+        # Reset extra chars
+        nAddExtra = 0;
+
+        ### Check both both dim delimiter and element delimiter ###
+        nIsDelimiter = 0;
+
+        ## Check dimension delimiter first
+        # If the delimiter is more than 1 character peek ahead the same amount
+        # Ignore the first character
+        sDelim = sChar;
+        nCount = LONG(sDelimDim) - 1;
+        If( nCount > 0 & nChar + nCount <= nCharCount );
+          # Add the extra characters
+          sDelim = sDelim | SUBST( sFilter, nChar + 1, nCount);
+          # Move to the end of the delimter
+          nAddExtra = nCount;
+        EndIf;
+
+        If( sDelim @= sDelimDim );
+          nIsDelimiter = 1;
+          sChar = sDelim;
+        Else;
+          # Reset extra chars
+          nAddExtra = 0;
+
+          ## Check element delimiter
+
+          # If the delimiter is more than 1 character peek ahead the same amount
+          # Ignore the first character
+          sDelim = sChar;
+          nCount = LONG(sDelimElem) - 1;
+          If( nCount > 0 & nChar + nCount <= nCharCount );
+            # Add the extra characters
+            sDelim = sDelim | SUBST( sFilter, nChar + 1, nCount);
+            # Move to the end of the delimter
+            nAddExtra = nCount;
+          EndIf;
+
+          If( sDelim @= sDelimElem );
+            nIsDelimiter = 1;
+            sChar = sDelim;
+          Else;
+            # Reset extra chars
+            nAddExtra = 0;
+          EndIf;
+
+        EndIf;
+
+        If ( nIsDelimiter = 1 );
+
+          If( sLastDelim @= '' % sLastDelim @= sDelimDim );
+            sMessage = 'An element delimiter must follow a dimension name: ' |  sChar | ' (' | NumberToString(nChar) | ')';
+            If( pDebug >= 1 );
+              AsciiOutput( sDebugFile, sMessage );
+            EndIf;
+            ItemReject( sMessage );
+          EndIf;
+
+          # Found an element
+          sElement = sWord;
+
+          IF(DIMIX(sDimension, sElement) > 0);
+              # first element
+              IF(nElementCount = 1);
+                sTargetFilter = sTargetFilter | sElementStartDelim | sElement;
+              # later elements
+              Else;
+                sTargetFilter = sTargetFilter | sDelimElem | sElement;
+              EndIf;
+          EndIf;
+
+          nElementCount = nElementCount + 1;
+
+
+          sLastDelim = sChar;
+
+          # Clear the word
+          sWord = '';
+        Else;
+          sWord = sWord | sChar;
+        EndIf;
+
+      EndIf;
+
+    EndIf;
+
+    nChar = nChar + nAddExtra + 1;
+
+    If( pDebug >= 1 );
+      sMessage = 'Current word is: ' | sWord | ' at ' | NumberToString(nChar - 1);
+      AsciiOutput( sDebugFile, sMessage );
+    EndIf;
+
+END;
+
+##################################################################################################################
+
+### Create View of target to clear out ###
+IF(pMappingToNewDims  @<> '');
+  IF(sTargetFilter @= '');
+    sTargetFilter = pMappingToNewDims;
+    Else;
+    sTargetFilter = sTargetFilter | sDelimDim | pMappingToNewDims;
+  EndIf;
+EndIf;
+
+If( pDebug >= 1 );
+  AsciiOutput( sDebugFile, 'Filter for target view is ' | sTargetFilter );
+EndIf;
+
+IF(sTargetFilter @<>'' & pZeroTarget = 1 & nErrors = 0);
+
+  ExecuteProcess('Bedrock.Cube.View.Create',
+    'pCube', pTargetCube,
+    'pView', pView,
+    'pFilter', sTargetFilter,
+    'pSuppressZero',1,
+    'pSuppressConsol', pSuppressConsol,
+    'pSuppressRules', 1,
+    'pDimensionDelim', pDimensionDelim,
+    'pElementStartDelim', pElementStartDelim,
+    'pElementDelim', pElementDelim,
+    'pDebug', pDebug);
+
+    ViewZeroOut(pTargetCube, pView);
+
+EndIf;
+
+
+################################# END OF CLEAR OUT TARGET ####################################################3
+
+
+### Create View of Source ###
+
+If( pDebug >= 1 );
+  AsciiOutput( sDebugFile, 'Filter for source view is ' | pFilter );
+EndIf;
+
+ExecuteProcess('Bedrock.Cube.View.Create',
+  'pCube', pSourceCube,
+  'pView', pView,
+  'pFilter', pFilter,
+  'pSuppressZero',1,
+  'pSuppressConsol', pSuppressConsol,
+  'pSuppressRules', pSuppressRules,
+  'pDimensionDelim', pDimensionDelim,
+  'pElementStartDelim', pElementStartDelim,
+  'pElementDelim', pElementDelim,
+  'pDebug', pDebug);
+
+### Assign Datasource ###
+
+  # Set the parameter pCopyDataViaClonedCube to 1
+  # to avoid recalculating the cache each time a cell is copied
+  # Calculated values can be copied to a tempororary cloned cube
+  # then the rules can be dropped, the data can be copied
+  # and then the rules can be reattached on the epilog
+
+If(nErrors = 0);
+    
+  sClonedCube = pSourceCube | cUser | cRandomInt;
+  
+  If(pCopyDataViaClonedCube = 1 & pDebug <= 1);
+    
+    # Note that pSuppressRules = 1 to skip rules
+    # The Bedrock Cube Clone process uses 1 for the pRuleValues parameter to skip rules
+    # So pSuppressRules can be passed to pRuleValues
+    
+    ExecuteProcess('Bedrock.Cube.Clone',
+      'pSourceCube', pSourceCube,
+      'pTargetCube', sClonedCube,
+      'pIncludeRules', 0,
+      'pIncludeData', 1,
+      'pSourceView', pView,
+      'pRuleValues', pSuppressRules,
+      'pDebug', pDebug);
+    
+    nCubeCloned = 1;
+    
+    # Create view in cloned cube
+    ExecuteProcess('Bedrock.Cube.View.Create',
+      'pCube', sClonedCube,
+      'pView', pView,
+      'pFilter', pFilter,
+      'pSuppressZero',1,
+      'pSuppressConsol', pSuppressConsol,
+      'pSuppressRules', pSuppressRules,
+      'pDimensionDelim', pDimensionDelim,
+      'pElementStartDelim', pElementStartDelim,
+      'pElementDelim', pElementDelim,
+      'pDebug', pDebug);
+    
+    DataSourceType = 'VIEW';
+    DatasourceNameForServer = sClonedCube;
+    DatasourceNameForClient = sClonedCube;
+    DatasourceCubeView = pView;
+    
+    Else;
+    
+      # don't copy data via cloned cube
+      DataSourceType = 'VIEW';
+      DatasourceNameForServer = pSourceCube;
+      DatasourceNameForClient = pSourceCube;
+      DatasourceCubeView = pView;
+    EndIf;
+  # This code will comment out the rules file while the process is running
+
+  If(pDropAndReattachRules = 1 & pDebug <= 1);
+    # Check whether calculated values are to be skipped
+    If(pSuppressRules = 1);
+      nRulesDropped = 1;
+      ExecuteProcess('Bedrock.Cube.DropRules','pCube',pTargetCube,'pDebug',pDebug);
+    EndIf;
+  EndIf;
+  # End of code to drop rules
+  
+  
+  Else;
+  DataSourceType = 'NULL';
+EndIf;
+
+### Determine dimensions in target cube, we need to know this to test cell type before loading ###
+# only numbers get converted from strings to numbers
+sDim1 = TabDim( pTargetCube, 1 );
+sDim2 = TabDim( pTargetCube, 2 );
+sDim3 = TabDim( pTargetCube, 3 );
+sDim4 = TabDim( pTargetCube, 4 );
+sDim5 = TabDim( pTargetCube, 5 );
+sDim6 = TabDim( pTargetCube, 6 );
+sDim7 = TabDim( pTargetCube, 7 );
+sDim8 = TabDim( pTargetCube, 8 );
+sDim9 = TabDim( pTargetCube, 9 );
+sDim10 = TabDim( pTargetCube, 10 );
+sDim11 = TabDim( pTargetCube, 11 );
+sDim12 = TabDim( pTargetCube, 12 );
+sDim13 = TabDim( pTargetCube, 13 );
+sDim14 = TabDim( pTargetCube, 14 );
+sDim15 = TabDim( pTargetCube, 15 );
+sDim16 = TabDim( pTargetCube, 16 );
+sDim17 = TabDim( pTargetCube, 17 );
+sDim18 = TabDim( pTargetCube, 18 );
+sDim19 = TabDim( pTargetCube, 19 );
+sDim20 = TabDim( pTargetCube, 20 );
+sDim21 = TabDim( pTargetCube, 21 );
+sDim22 = TabDim( pTargetCube, 22 );
+sDim23 = TabDim( pTargetCube, 23 );
+sDim24 = TabDim( pTargetCube, 24 );
+sDim25 = TabDim( pTargetCube, 25 );
+sDim26 = TabDim( pTargetCube, 26 );
+sDim27 = TabDim( pTargetCube, 27 );
+
+
+
+#endregion
+#region Metadata
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Data
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+# Set debug file name
+sDebugFile = cDebugFile | 'Data.debug';
+
+# The exapand function gives the value of the variable passed to it
+# So if the say the third dimension in the source cube is the first dimension in the target cube
+# the string variable sSourceVariableForTargetV1 is set on the prolog to V3
+# which means Expand(%V3%) gives the value of V3
+# and sTargetV1 will equal V3
+
+IF(sSourceVariableForTargetV1 @<>'');
+  sTargetV1 = Expand('%' | sSourceVariableForTargetV1 | '%');
+EndIf;
+IF(sSourceVariableForTargetV2 @<>'');
+  sTargetV2 = Expand('%' | sSourceVariableForTargetV2 | '%');
+EndIf;
+IF(sSourceVariableForTargetV3 @<>'');
+  sTargetV3 = Expand('%' | sSourceVariableForTargetV3 | '%');
+EndIf;
+IF(sSourceVariableForTargetV4 @<>'');
+  sTargetV4 = Expand('%' | sSourceVariableForTargetV4 | '%');
+EndIf;
+IF(sSourceVariableForTargetV5 @<>'');
+  sTargetV5 = Expand('%' | sSourceVariableForTargetV5 | '%');
+EndIf;
+IF(sSourceVariableForTargetV6 @<>'');
+  sTargetV6 = Expand('%' | sSourceVariableForTargetV6 | '%');
+EndIf;
+IF(sSourceVariableForTargetV7 @<>'');
+  sTargetV7 = Expand('%' | sSourceVariableForTargetV7 | '%');
+EndIf;
+IF(sSourceVariableForTargetV8 @<>'');
+  sTargetV8 = Expand('%' | sSourceVariableForTargetV8 | '%');
+EndIf;
+IF(sSourceVariableForTargetV9 @<>'');
+  sTargetV9 = Expand('%' | sSourceVariableForTargetV9 | '%');
+EndIf;
+IF(sSourceVariableForTargetV10 @<>'');
+  sTargetV10 = Expand('%' | sSourceVariableForTargetV10 | '%');
+EndIf;
+IF(sSourceVariableForTargetV11 @<>'');
+  sTargetV11 = Expand('%' | sSourceVariableForTargetV11 | '%');
+EndIf;
+IF(sSourceVariableForTargetV12 @<>'');
+  sTargetV12 = Expand('%' | sSourceVariableForTargetV12 | '%');
+EndIf;
+IF(sSourceVariableForTargetV13 @<>'');
+  sTargetV13 = Expand('%' | sSourceVariableForTargetV13 | '%');
+EndIf;
+IF(sSourceVariableForTargetV14 @<>'');
+  sTargetV14 = Expand('%' | sSourceVariableForTargetV14 | '%');
+EndIf;
+IF(sSourceVariableForTargetV15 @<>'');
+  sTargetV15 = Expand('%' | sSourceVariableForTargetV15 | '%');
+EndIf;
+IF(sSourceVariableForTargetV16 @<>'');
+  sTargetV16 = Expand('%' | sSourceVariableForTargetV16 | '%');
+EndIf;
+IF(sSourceVariableForTargetV17 @<>'');
+  sTargetV17 = Expand('%' | sSourceVariableForTargetV17 | '%');
+EndIf;
+IF(sSourceVariableForTargetV18 @<>'');
+  sTargetV18 = Expand('%' | sSourceVariableForTargetV18 | '%');
+EndIf;
+IF(sSourceVariableForTargetV19 @<>'');
+  sTargetV19 = Expand('%' | sSourceVariableForTargetV19 | '%');
+EndIf;
+IF(sSourceVariableForTargetV20 @<>'');
+  sTargetV20 = Expand('%' | sSourceVariableForTargetV20 | '%');
+EndIf;
+IF(sSourceVariableForTargetV21 @<>'');
+  sTargetV21 = Expand('%' | sSourceVariableForTargetV21 | '%');
+EndIf;
+IF(sSourceVariableForTargetV22 @<>'');
+  sTargetV22 = Expand('%' | sSourceVariableForTargetV22 | '%');
+EndIf;
+IF(sSourceVariableForTargetV23 @<>'');
+  sTargetV23 = Expand('%' | sSourceVariableForTargetV23 | '%');
+EndIf;
+IF(sSourceVariableForTargetV24 @<>'');
+  sTargetV24 = Expand('%' | sSourceVariableForTargetV24 | '%');
+EndIf;
+IF(sSourceVariableForTargetV25 @<>'');
+  sTargetV25 = Expand('%' | sSourceVariableForTargetV25 | '%');
+EndIf;
+IF(sSourceVariableForTargetV26 @<>'');
+  sTargetV26 = Expand('%' | sSourceVariableForTargetV26 | '%');
+EndIf;
+IF(sSourceVariableForTargetV27 @<>'');
+  sTargetV27 = Expand('%' | sSourceVariableForTargetV27 | '%');
+EndIf;
+# V28 is for the variable
+IF(sSourceVariableForTargetV28 @<>'');
+  sTargetV28 = Expand('%' | sSourceVariableForTargetV28 | '%');
+EndIf;
+
+#############################################################################################################
+### Write data from source file to target cube ###########################################################
+If( pDebug <= 1 );
+  If( nTargetCubeDimensionCount = 2 );
+    If( CellIsUpdateable( pTargetCube, sTargetV1, sTargetV2 ) = 1 );
+      sElType = DType( sDim2, sTargetV2 );
+      IF( sElType @= 'AS' % sElType @= 'AA');
+        ATTRPUTS( sTargetV3, pTargetCube, sTargetV1, sTargetV2 );
+      ELSEIF( sElType @= 'AN' );
+        ATTRPUTN( Numbr( sTargetV3) * nFactor, pTargetCube, sTargetV1, sTargetV2 );
+      ElseIf( sElType @= 'S' );
+        CellPutS( sTargetV3, pTargetCube, sTargetV1, sTargetV2 );
+      Else;
+
+          nObal = CellGetN( pTargetCube, sTargetV1, sTargetV2 );
+          nCbal = nObal + Numbr( sTargetV3 ) * nFactor;
+
+        CellPutN( nCbal, pTargetCube, sTargetV1, sTargetV2 );
+      EndIf;
+    EndIf;
+  ElseIf( nTargetCubeDimensionCount = 3 );
+    If( CellIsUpdateable( pTargetCube, sTargetV1, sTargetV2, sTargetV3 ) = 1 );
+
+      sElType = DType( sDim3, sTargetV3 );
+      If( sElType @<> 'S' );
+
+          nObal = CellGetN( pTargetCube, sTargetV1, sTargetV2, sTargetV3 );
+          nCbal = nObal + Numbr( sTargetV4 ) * nFactor;
+
+        CellPutN( nCbal, pTargetCube, sTargetV1, sTargetV2, sTargetV3 );
+      Else;
+        CellPutS( sTargetV4, pTargetCube, sTargetV1, sTargetV2, sTargetV3 );
+      EndIf;
+    EndIf;
+  ElseIf( nTargetCubeDimensionCount = 4 );
+    If( CellIsUpdateable( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4 ) = 1 );
+      sElType = DType( sDim4, sTargetV4 );
+      If( sElType @<> 'S' );
+
+          nObal = CellGetN( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4);
+          nCbal = nObal + Numbr( sTargetV5 ) * nFactor;
+
+        CellPutN( nCbal, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4);
+      Else;
+        CellPutS( sTargetV5, pTargetCube, sTargetV1, sTargetV1, sTargetV2, sTargetV3, sTargetV4);
+      EndIf;
+    EndIf;
+  ElseIf( nTargetCubeDimensionCount = 5 );
+    If( CellIsUpdateable( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5 ) = 1 );
+      sElType = DType( sDim5, sTargetV5 );
+      If( sElType @<> 'S' );
+
+          nObal = CellGetN( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5 );
+          nCbal = nObal + Numbr( sTargetV6 ) * nFactor;
+
+        CellPutN( nCbal, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5 );
+      Else;
+        CellPutS( sTargetV6, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5 );
+      EndIf;
+    EndIf;
+  ElseIf( nTargetCubeDimensionCount = 6 );
+    If( CellIsUpdateable( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6 ) = 1 );
+      sElType = DType( sDim6, sTargetV6 );
+      If( sElType @<> 'S' );
+
+          nObal = CellGetN( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6 );
+          nCbal = nObal + Numbr( sTargetV7 ) * nFactor;
+
+        CellPutN( nCbal, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6 );
+      Else;
+        CellPutS( sTargetV7, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6 );
+      EndIf;
+    EndIf;
+  ElseIf( nTargetCubeDimensionCount = 7 );
+    If( CellIsUpdateable( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7 ) = 1 );
+      sElType = DType( sDim7, sTargetV7 );
+      If( sElType @<> 'S' );
+
+          nObal = CellGetN( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7 );
+          nCbal = nObal + Numbr( sTargetV8 ) * nFactor;
+
+        CellPutN( nCbal, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7 );
+      Else;
+        CellPutS( sTargetV8, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7 );
+      EndIf;
+    EndIf;
+  ElseIf( nTargetCubeDimensionCount = 8 );
+    If( CellIsUpdateable( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8 ) = 1 );
+      sElType = DType( sDim8, sTargetV8 );
+      If( sElType @<> 'S' );
+
+          nObal = CellGetN( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8 );
+          nCbal = nObal + Numbr( sTargetV9 ) * nFactor;
+
+        CellPutN( nCbal, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8 );
+      Else;
+        CellPutS( sTargetV9, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8 );
+      EndIf;
+    EndIf;
+  ElseIf( nTargetCubeDimensionCount = 9 );
+    If( CellIsUpdateable( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9 ) = 1 );
+      sElType = DType( sDim9, sTargetV9 );
+      If( sElType @<> 'S' );
+
+          nObal = CellGetN( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9 );
+          nCbal = nObal + Numbr( sTargetV10 ) * nFactor;
+
+        CellPutN( nCbal, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9 );
+      Else;
+        CellPutS( sTargetV10, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9 );
+      EndIf;
+    EndIf;
+  ElseIf( nTargetCubeDimensionCount = 10 );
+    If( CellIsUpdateable( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10 ) = 1 );
+      sElType = DType( sDim10, sTargetV10 );
+      If( sElType @<> 'S' );
+
+          nObal = CellGetN( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10 );
+          nCbal = nObal + Numbr( sTargetV11 ) * nFactor;
+
+        CellPutN( nCbal, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10 );
+      Else;
+        CellPutS( sTargetV11, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10 );
+      EndIf;
+    EndIf;
+  ElseIf( nTargetCubeDimensionCount = 11 );
+    If( CellIsUpdateable( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11 ) = 1 );
+      sElType = DType( sDim11, sTargetV11 );
+      If( sElType @<> 'S' );
+
+          nObal = CellGetN( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11 );
+          nCbal = nObal + Numbr( sTargetV12 ) * nFactor;
+
+        CellPutN( nCbal, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11 );
+      Else;
+        CellPutS( sTargetV12, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11 );
+      EndIf;
+    EndIf;
+  ElseIf( nTargetCubeDimensionCount = 12 );
+    If( CellIsUpdateable( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12 ) = 1 );
+      sElType = DType( sDim12, sTargetV12 );
+      If( sElType @<> 'S' );
+
+          nObal = CellGetN( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12 );
+          nCbal = nObal + Numbr( sTargetV13 ) * nFactor;
+
+        CellPutN( nCbal, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12 );
+      Else;
+        CellPutS( sTargetV13, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12 );
+      EndIf;
+    EndIf;
+  ElseIf( nTargetCubeDimensionCount = 13 );
+    If( CellIsUpdateable( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13 ) = 1 );
+      sElType = DType( sDim13, sTargetV13 );
+      If( sElType @<> 'S' );
+
+          nObal = CellGetN( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13 );
+          nCbal = nObal + Numbr( sTargetV14 ) * nFactor;
+
+        CellPutN( nCbal, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13 );
+      Else;
+        CellPutS( sTargetV14, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13 );
+      EndIf;
+    EndIf;
+  ElseIf( nTargetCubeDimensionCount = 14 );
+    If( CellIsUpdateable( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14 ) = 1 );
+      sElType = DType( sDim14, sTargetV14 );
+      If( sElType @<> 'S' );
+
+          nObal = CellGetN( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14 );
+          nCbal = nObal + Numbr( sTargetV15 ) * nFactor;
+
+        CellPutN( nCbal, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14 );
+      Else;
+        CellPutS( sTargetV15, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14 );
+      EndIf;
+    EndIf;
+  ElseIf( nTargetCubeDimensionCount = 15 );
+    If( CellIsUpdateable( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15 ) = 1 );
+      sElType = DType( sDim15, sTargetV15 );
+      If( sElType @<> 'S' );
+
+          nObal = CellGetN( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15 );
+          nCbal = nObal + Numbr( sTargetV16 ) * nFactor;
+
+        CellPutN( nCbal, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15 );
+      Else;
+        CellPutS( sTargetV16, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15 );
+      EndIf;
+    EndIf;
+  ElseIf( nTargetCubeDimensionCount = 16 );
+    If( CellIsUpdateable( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16 ) = 1 );
+      sElType = DType( sDim16, sTargetV16 );
+
+          nObal = CellGetN( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16 );
+          nCbal = nObal + Numbr( sTargetV17 ) * nFactor;
+
+      If( sElType @<> 'S' );
+        CellPutN( nCbal, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16 );
+      Else;
+        CellPutS( sTargetV17, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16 );
+      EndIf;
+    EndIf;
+  ElseIf( nTargetCubeDimensionCount = 17 );
+    If( CellIsUpdateable( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17 ) = 1 );
+      sElType = DType( sDim17, sTargetV17 );
+      If( sElType @<> 'S' );
+
+          nObal = CellGetN( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17 );
+          nCbal = nObal + Numbr( sTargetV18 ) * nFactor;
+
+        CellPutN( nCbal, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17 );
+      Else;
+        CellPutS( sTargetV18, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17 );
+      EndIf;
+    EndIf;
+  ElseIf( nTargetCubeDimensionCount = 18 );
+    If( CellIsUpdateable( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18 ) = 1 );
+      sElType = DType( sDim18, sTargetV18 );
+      If( sElType @<> 'S' );
+
+          nObal = CellGetN( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18 );
+          nCbal = nObal + Numbr( sTargetV19 ) * nFactor;
+
+        CellPutN( nCbal, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18 );
+      Else;
+        CellPutS( sTargetV19, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18 );
+      EndIf;
+    EndIf;
+  ElseIf( nTargetCubeDimensionCount = 19 );
+    If( CellIsUpdateable( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19 ) = 1 );
+      sElType = DType( sDim19, sTargetV19 );
+      If( sElType @<> 'S' );
+
+          nObal = CellGetN( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19 );
+          nCbal = nObal + Numbr( sTargetV20 ) * nFactor;
+
+        CellPutN( nCbal, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18, sTargetV19
+);
+      Else;
+        CellPutS( sTargetV20, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19 );
+      EndIf;
+    EndIf;
+  ElseIf( nTargetCubeDimensionCount = 20 );
+    If( CellIsUpdateable( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20 ) = 1 );
+      sElType = DType( sDim20, sTargetV20 );
+      If( sElType @<> 'S' );
+
+          nObal = CellGetN( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20 );
+          nCbal = nObal + Numbr( sTargetV21 ) * nFactor;
+
+        CellPutN( nCbal, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20 );
+      Else;
+        CellPutS( sTargetV21, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20 );
+      EndIf;
+    EndIf;
+  ElseIf( nTargetCubeDimensionCount = 21 );
+    If( CellIsUpdateable( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20, sTargetV21 ) = 1 );
+      sElType = DType( sDim21, sTargetV21 );
+      If( sElType @<> 'S' );
+
+          nObal = CellGetN( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20, sTargetV21 );
+          nCbal = nObal + Numbr( sTargetV22 ) * nFactor;
+
+        CellPutN( nCbal, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20, sTargetV21 );
+      Else;
+        CellPutS( sTargetV22, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20, sTargetV21 );
+      EndIf;
+    EndIf;
+  ElseIf( nTargetCubeDimensionCount = 22 );
+    If( CellIsUpdateable( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20, sTargetV21, sTargetV22 ) = 1 );
+      sElType = DType( sDim22, sTargetV22 );
+      If( sElType @<> 'S' );
+
+          nObal = CellGetN( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20, sTargetV21, sTargetV22 );
+          nCbal = nObal + Numbr( sTargetV23 ) * nFactor;
+
+        CellPutN( nCbal, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20, sTargetV21, sTargetV22 );
+      Else;
+        CellPutS( sTargetV23, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20, sTargetV21, sTargetV22 );
+      EndIf;
+    EndIf;
+  ElseIf( nTargetCubeDimensionCount = 23 );
+    If( CellIsUpdateable( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20, sTargetV21,
+    sTargetV22, sTargetV23 ) = 1 );
+      sElType = DType( sDim23, sTargetV23 );
+      If( sElType @<> 'S' );
+
+          nObal = CellGetN( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20, sTargetV21,
+            sTargetV22, sTargetV23 );
+          nCbal = nObal + Numbr( sTargetV24 ) * nFactor;
+
+        CellPutN( nCbal, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20, sTargetV21,
+          sTargetV22, sTargetV23 );
+      Else;
+        CellPutS( sTargetV24, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20, sTargetV21, sTargetV22, sTargetV23 );
+      EndIf;
+    EndIf;
+  ElseIf( nTargetCubeDimensionCount = 24 );
+    If( CellIsUpdateable( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20, sTargetV21,
+      sTargetV22, sTargetV23, sTargetV24 ) = 1 );
+      sElType = DType( sDim24, sTargetV24 );
+      If( sElType @<> 'S' );
+
+          nObal = CellGetN( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20, sTargetV21,
+            sTargetV22, sTargetV23, sTargetV24 );
+          nCbal = nObal + Numbr( sTargetV25 ) * nFactor;
+
+        CellPutN( nCbal, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20, sTargetV21,
+          sTargetV22, sTargetV23, sTargetV24 );
+      Else;
+        CellPutS( sTargetV25, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20, sTargetV21,
+          sTargetV22, sTargetV23, sTargetV24 );
+      EndIf;
+    EndIf;
+  ElseIf( nTargetCubeDimensionCount = 25 );
+    If( CellIsUpdateable( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20, sTargetV21,
+      sTargetV22, sTargetV23, sTargetV24, sTargetV25 ) = 1 );
+      sElType = DType( sDim25, sTargetV25 );
+      If( sElType @<> 'S' );
+
+          nObal = CellGetN( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20, sTargetV21,
+            sTargetV22, sTargetV23, sTargetV24, sTargetV25 );
+          nCbal = nObal + Numbr( sTargetV26 ) * nFactor;
+
+        CellPutN( nCbal, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20, sTargetV21,
+          sTargetV22, sTargetV23, sTargetV24, sTargetV25 );
+      Else;
+        CellPutS( sTargetV26, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20, sTargetV21,
+          sTargetV22, sTargetV23, sTargetV24, sTargetV25 );
+      EndIf;
+    EndIf;
+ElseIf( nTargetCubeDimensionCount = 26 );
+    If( CellIsUpdateable( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20, sTargetV21,
+    sTargetV22, sTargetV23, sTargetV24, sTargetV25, sTargetV26 ) = 1 );
+      sElType = DType( sDim26, sTargetV26 );
+      If( sElType @<> 'S' );
+
+          nObal = CellGetN( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20, sTargetV21,
+            sTargetV22, sTargetV23, sTargetV24, sTargetV25, sTargetV26 );
+          nCbal = nObal + Numbr( sTargetV27 ) * nFactor;
+
+        CellPutN( nCbal, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20, sTargetV21,
+        sTargetV22, sTargetV23, sTargetV24, sTargetV25, sTargetV26 );
+      Else;
+        CellPutS( sTargetV27, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20,
+          sTargetV21, sTargetV22, sTargetV23, sTargetV24, sTargetV25, sTargetV26 );
+      EndIf;
+    EndIf;
+ElseIf( nTargetCubeDimensionCount = 27 );
+    If( CellIsUpdateable( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20, sTargetV21,
+    sTargetV22, sTargetV23, sTargetV24, sTargetV25, sTargetV26, sTargetV27 ) = 1 );
+      sElType = DType( sDim27, sTargetV27 );
+      If( sElType @<> 'S' );
+
+          nObal = CellGetN( pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20, sTargetV21,
+            sTargetV22, sTargetV23, sTargetV24, sTargetV25, sTargetV26, sTargetV27 );
+          nCbal = nObal + Numbr( sTargetV28 ) * nFactor;
+
+        CellPutN( nCbal, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20, sTargetV21,
+          sTargetV22, sTargetV23, sTargetV24, sTargetV25, sTargetV26, sTargetV27 );
+      Else;
+        CellPutS( sTargetV28, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20,
+          sTargetV21, sTargetV22, sTargetV23, sTargetV24, sTargetV25, sTargetV26, sTargetV27 );
+      EndIf;
+    EndIf;
+
+  EndIf;
+EndIf;
+
+If( pDebug >= 1 );
+  ASCIIOutput( sDebugFile, pTargetCube, sTargetV1, sTargetV2, sTargetV3, sTargetV4, sTargetV5, sTargetV6, sTargetV7, sTargetV8, sTargetV9, sTargetV10, sTargetV11, sTargetV12, sTargetV13, sTargetV14, sTargetV15, sTargetV16, sTargetV17, sTargetV18,
+sTargetV19, sTargetV20, sTargetV21, sTargetV22, sTargetV23, sTargetV24, sTargetV25, sTargetV26, sTargetV27, sTargetV28 );
+ENDIF;
+
+
+#endregion
+#region Epilog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+#If the rules were dropped, reattach them
+If(nRulesDropped = 1);
+  ExecuteProcess('Bedrock.Cube.AttachRules','pCube', pTargetCube,'pDebug', pDebug);
+EndIf;
+
+If(CubeExists(sClonedCube) = 1);
+  CubeDestroy(sClonedCube);
+EndIf;
+
+
+If(nErrors = 0);
+
+  If(pDebug <= 1 );
+
+
+
+
+    # Zero out source data #
+
+    If( pZeroSource = 1 );
+        ViewZeroOut( pSourceCube, pView );
+    EndIf;
+
+  EndIf;
+
+  ### Destroy temporary views and subsets ###
+  # regardless of debug mode
+  If(pDeleteViewsAndSubsets <> 0);
+    # Delete source view
+    ExecuteProcess('Bedrock.Cube.View.DeleteWithSubsets',
+      'pCube', pSourceCube,
+      'pView', pView,
+      'pMode', pDeleteViewsAndSubsets,
+      'pDebug', pDebug);
+
+    # Delete target view
+    ExecuteProcess('Bedrock.Cube.View.DeleteWithSubsets',
+      'pCube', pTargetCube,
+      'pView', pView,
+      'pMode', pDeleteViewsAndSubsets,
+      'pDebug', pDebug);
+  ENDIF;
+ENDIF;
+
+### Initialise Debug ###
+
+If( pDebug >= 1 );
+
+  # Set debug file name
+  sDebugFile = cDebugFile | 'Epilog.debug';
+
+  # Log errors
+  If( nErrors <> 0 );
+    AsciiOutput( sDebugFile, 'Errors Occurred' );
+  EndIf;
+
+  # Log finish time
+  AsciiOutput( sDebugFile, 'Process Finished: ' | TimSt( Now, '\d-\m-\Y \h:\i:\s' ) );
+
+EndIf;
+
+
+### If errors occurred terminate process with a major error status ###
+
+If( nErrors <> 0 );
+  ProcessQuit;
+EndIf;
+
+
+### End Epilog ###
+
+
+
+#endregion

@@ -1,0 +1,52 @@
+{
+	"@type":"NativeView",
+	"Name":"Cub.CH Reporting.Load from CH Data Input",
+	"Columns":
+	[
+		{
+			"Subset":
+			{
+				"@id":"Dimensions('CH Input Measure')/Hierarchies('CH Input Measure')/Subsets('Cub.CH Reporting.Load from CH Data Input')"
+			}
+		}
+	],
+	"Rows":
+	[
+		{
+			"Subset":
+			{
+				"Hierarchy":
+				{
+					"@id":"Dimensions('CH Item')/Hierarchies('CH Item')"
+				},
+				"Expression":"TM1SubsetAll([CH Item])"
+			}
+		}
+	],
+	"Titles":
+	[
+		{
+			"Subset":
+			{
+				"@id":"Dimensions('CH Company')/Hierarchies('CH Company')/Subsets('Cub.CH Reporting.Load from CH Data Input')"
+			},
+			"Selected":
+			{
+				"@id":"Dimensions('CH Company')/Hierarchies('CH Company')/Elements('0009')"
+			}
+		},
+		{
+			"Subset":
+			{
+				"@id":"Dimensions('CH Cost Centre')/Hierarchies('CH Cost Centre')/Subsets('Cub.CH Reporting.Load from CH Data Input')"
+			},
+			"Selected":
+			{
+				"@id":"Dimensions('CH Cost Centre')/Hierarchies('CH Cost Centre')/Elements('CC 02/0001')"
+			}
+		}
+	],
+	"SuppressEmptyColumns":false,
+	"SuppressEmptyRows":false,
+	"FormatString":"0.00"
+}

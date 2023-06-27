@@ -1,0 +1,147 @@
+#region Prolog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+#####################################################################################
+##~~Copyright bedrocktm1.org 2011 www.bedrocktm1.org/how-to-licence.php Ver 1.0.0~~##
+#####################################################################################
+
+# This process will remove all children from all consolidations in the target dimension
+
+
+### Constants ###
+
+cProcess = 'Bedrock.Dim.Hierarchy.Unwind.All';
+cTimeStamp = TimSt( Now, '\Y\m\d\h\i\s' );
+cDebugFile = GetProcessErrorFileDirectory | cProcess | '.' | cTimeStamp | '.';
+
+
+### Initialise Debug ###
+
+If( pDebug >= 1 );
+
+  # Set debug file name
+  sDebugFile = cDebugFile | 'Prolog.debug';
+
+  # Log start time
+  AsciiOutput( sDebugFile, 'Process Started: ' | TimSt( Now, '\d-\m-\Y \h:\i:\s' ) );
+
+  # Log parameters
+  AsciiOutput( sDebugFile, 'Parameters: pDimension : ' | pDimension );
+
+EndIf;
+
+
+### Validate Parameters ###
+
+nErrors = 0;
+
+# Validate dimension
+If( Trim( pDimension ) @= '' );
+  nErrors = 1;
+  sMessage = 'No dimension specified';
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  DataSourceType = 'NULL';
+  ItemReject( sMessage );
+EndIf;
+If( DimensionExists( pDimension ) = 0 );
+  nErrors = 1;
+  sMessage = 'Dimension: ' | pDimension | ' does not exist';
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  DataSourceType = 'NULL';
+  ItemReject( sMessage );
+EndIf;
+
+
+### Assign data source ###
+
+DataSourceType = 'SUBSET';
+DatasourceNameForServer = pDimension;
+DatasourceNameForClient = pDimension;
+DatasourceDimensionSubset = 'ALL';
+
+
+### End Prolog ###
+#endregion
+#region Metadata
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+#####################################################################################
+##~~Copyright bedrocktm1.org 2011 www.bedrocktm1.org/how-to-licence.php Ver 1.0.0~~##
+#####################################################################################
+
+
+### Check for errors in prolog ###
+
+If( nErrors <> 0 );
+  ProcessBreak;
+EndIf;
+
+
+### Break all parent/child links ###
+
+If( ElLev( pDimension, vElement ) = 0 % ElCompN( pDimension, vElement ) = 0 % DType( pDimension, vElement ) @<> 'C');
+  ItemSkip;
+EndIf;
+
+nChildren = ElCompN( pDimension, vElement );
+While( nChildren > 0 );
+  sChild = ElComp( pDimension, vElement, nChildren );
+  If( pDebug <= 1 );
+    DimensionElementComponentDelete( pDimension, vElement, sChild );
+  EndIf;
+  nChildren = nChildren - 1;
+End;
+
+
+### End Metadata ###
+#endregion
+#region Data
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Epilog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+#####################################################################################
+##~~Copyright bedrocktm1.org 2011 www.bedrocktm1.org/how-to-licence.php Ver 1.0.0~~##
+#####################################################################################
+
+
+### Initialise Debug ###
+
+If( pDebug >= 1 );
+
+  # Set debug file name
+  sDebugFile = cDebugFile | 'Epilog.debug';
+
+  # Log errors
+  If( nErrors <> 0 );
+    AsciiOutput( sDebugFile, 'Errors Occurred' );
+  EndIf;
+
+  # Log finish time
+  AsciiOutput( sDebugFile, 'Process Finished: ' | TimSt( Now, '\d-\m-\Y \h:\i:\s' ) );
+
+EndIf;
+
+
+### If errors occurred terminate process with a major error status ###
+
+If( nErrors <> 0 );
+  ProcessQuit;
+EndIf;
+
+
+### End Epilog ###
+#endregion

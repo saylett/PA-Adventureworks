@@ -1,0 +1,26 @@
+{
+	"@type":"Cube",
+	"Name":"Regional Assumptions",
+	"Dimensions":
+	[
+		{
+			"@id":"Dimensions('Version')"
+		},
+		{
+			"@id":"Dimensions('Year')"
+		},
+		{
+			"@id":"Dimensions('Period')"
+		},
+		{
+			"@id":"Dimensions('Region')"
+		},
+		{
+			"@id":"Dimensions('Regional Assumptions Measure')"
+		}
+	],
+	"Views@Code.links":
+	[
+		"Regional Assumptions.views/Default.json"
+	]
+}

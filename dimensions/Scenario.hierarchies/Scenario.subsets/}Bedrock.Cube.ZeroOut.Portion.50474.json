@@ -1,0 +1,10 @@
+{
+	"@type":"Subset",
+	"Name":"}Bedrock.Cube.ZeroOut.Portion.50474",
+	"Elements":
+	[
+		{
+			"@id":"Dimensions('Scenario')/Hierarchies('Scenario')/Elements('1')"
+		}
+	]
+}

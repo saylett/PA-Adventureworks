@@ -1,0 +1,29 @@
+{
+	"@type":"Cube",
+	"Name":"Product",
+	"Dimensions":
+	[
+		{
+			"@id":"Dimensions('Version')"
+		},
+		{
+			"@id":"Dimensions('Year')"
+		},
+		{
+			"@id":"Dimensions('Currency')"
+		},
+		{
+			"@id":"Dimensions('Region')"
+		},
+		{
+			"@id":"Dimensions('Product')"
+		},
+		{
+			"@id":"Dimensions('Product Measure')"
+		}
+	],
+	"Views@Code.links":
+	[
+		"Product.views/Default.json"
+	]
+}

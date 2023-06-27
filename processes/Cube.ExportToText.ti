@@ -1,0 +1,145 @@
+#region Prolog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#Hello Again
+#Currency Exchange Rates
+#Employee
+#General Ledger
+#Planning Assumptions
+#Product
+#Product Type by Region
+#Regio nal Assumptions
+#Retail
+#System Info
+#Time
+#Wholesale
+
+cExportPath = 'C:\Cubewise University\Export';
+
+sCube = 'Currency Exchange Rates';
+ExecuteProcess('Bedrock.Cube.View.ExportToFile',
+  'pCube', sCube,
+  'pExportPath',cExportPath,
+  'pExportFile','',
+  'pView','',
+  'pSkipRuleValues',1,
+  'pSkipCalcValues',1,
+  'pSkipNullValues',1,
+  'pTitleRecord',1,
+  'pDebug',0);
+
+sCube = 'Employee';
+ExecuteProcess('Bedrock.Cube.View.ExportToFile',
+  'pCube', sCube,
+  'pExportPath',cExportPath,
+  'pExportFile','',
+  'pView','',
+  'pSkipRuleValues',1,
+  'pSkipCalcValues',1,
+  'pSkipNullValues',1,
+  'pTitleRecord',1,
+  'pDebug',0);
+
+sCube = 'General Ledger';
+ExecuteProcess('Bedrock.Cube.View.ExportToFile',
+  'pCube', sCube,
+  'pExportPath', cExportPath,
+  'pExportFile','',
+  'pView','',
+  'pSkipRuleValues',1,
+  'pSkipCalcValues',1,
+  'pSkipNullValues',1,
+  'pTitleRecord',1,
+  'pDebug',0);
+
+sCube = 'Planning Assumptions';
+ExecuteProcess('Bedrock.Cube.View.ExportToFile',
+  'pCube', sCube,
+  'pExportPath', cExportPath,
+  'pExportFile','',
+  'pView','',
+  'pSkipRuleValues',1,
+  'pSkipCalcValues',1,
+  'pSkipNullValues',1,
+  'pTitleRecord',1,
+  'pDebug',0);
+
+sCube = 'Product';
+ExecuteProcess('Bedrock.Cube.View.ExportToFile',
+  'pCube', sCube,
+  'pExportPath',cExportPath,
+  'pExportFile','',
+  'pView','',
+  'pSkipRuleValues',1,
+  'pSkipCalcValues',1,
+  'pSkipNullValues',1,
+  'pTitleRecord',1,
+  'pDebug',0);
+
+sCube = 'Product Type by Region';
+ExecuteProcess('Bedrock.Cube.View.ExportToFile',
+  'pCube', sCube,
+  'pExportPath', cExportPath,
+  'pExportFile','',
+  'pView','',
+  'pSkipRuleValues',1,
+  'pSkipCalcValues',1,
+  'pSkipNullValues',1,
+  'pTitleRecord',1,
+  'pDebug',0);
+
+sCube = 'Regional Assumptions';
+ExecuteProcess('Bedrock.Cube.View.ExportToFile',
+  'pCube', sCube,
+  'pExportPath', cExportPath,
+  'pExportFile','',
+  'pView','',
+  'pSkipRuleValues',1,
+  'pSkipCalcValues',1,
+  'pSkipNullValues',1,
+  'pTitleRecord',1,
+  'pDebug',0);
+
+sCube = 'Retail';
+ExecuteProcess('Bedrock.Cube.View.ExportToFile',
+  'pCube', sCube,
+  'pExportPath', cExportPath,
+  'pExportFile','',
+  'pView','',
+  'pSkipRuleValues',1,
+  'pSkipCalcValues',1,
+  'pSkipNullValues',1,
+  'pTitleRecord',1,
+  'pDebug',0);
+
+sCube = 'Wholesale';
+ExecuteProcess('Bedrock.Cube.View.ExportToFile',
+  'pCube', sCube,
+  'pExportPath', cExportPath,
+  'pExportFile','',
+  'pView','',
+  'pSkipRuleValues',1,
+  'pSkipCalcValues',1,
+  'pSkipNullValues',1,
+  'pTitleRecord',1,
+  'pDebug',0);
+#endregion
+#region Metadata
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+#endregion
+#region Data
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+#endregion
+#region Epilog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+#endregion

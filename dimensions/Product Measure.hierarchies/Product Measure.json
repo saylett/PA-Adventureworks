@@ -1,0 +1,19 @@
+{
+	"@type":"Hierarchy",
+	"Name":"Product Measure",
+	"Elements":
+	[
+		{
+			"Name":"Standard Cost",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"List Price",
+			"Type":"Numeric"
+		}
+	],
+	"Subsets@Code.links":
+	[
+		"Product Measure.subsets/}Bedrock.Dim.Clone.json"
+	]
+}

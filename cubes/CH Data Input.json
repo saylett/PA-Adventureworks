@@ -1,0 +1,26 @@
+{
+	"@type":"Cube",
+	"Name":"CH Data Input",
+	"Rules@Code.link":"CH Data Input.rules",
+	"Dimensions":
+	[
+		{
+			"@id":"Dimensions('CH Company')"
+		},
+		{
+			"@id":"Dimensions('CH Cost Centre')"
+		},
+		{
+			"@id":"Dimensions('CH Item')"
+		},
+		{
+			"@id":"Dimensions('CH Input Measure')"
+		}
+	],
+	"Views@Code.links":
+	[
+		"CH Data Input.views/Cub.CH Reporting.Clear.json",
+		"CH Data Input.views/Cub.CH Reporting.Load from CH Data Input.json",
+		"CH Data Input.views/Default.json"
+	]
+}

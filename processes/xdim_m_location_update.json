@@ -1,0 +1,51 @@
+{
+	"@type":"Process",
+	"Name":"xdim_m_location_update",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"xdim_m_location_update.ti",
+	"UIData":"CubeAction=1511€DataAction=1503€CubeLogChanges=0€",
+	"VariablesUIData":
+	[
+		"VarType=32€ColType=858€ConsolidationDim=m_location€ConsolidationChildVar=vState€ConsolidationChildWeight=1.000000€ComponentSortType=ByInput€ComponentSortSense=ASCENDING€",
+		"VarType=32€ColType=858€ConsolidationDim=m_location€ConsolidationChildVar=vLocation€ConsolidationChildWeight=1.000000€ComponentSortType=ByInput€ComponentSortSense=ASCENDING€",
+		"VarType=32€ColType=825€VarDimension=m_location€VarDimAction=As Is€VarElemType=Numeric€VarDimElemSortType=ByInput€VarDimElemSortSense=ASCENDING€",
+		"VarName=vAllocations€VarType=32€ColType=858€VarFormula=vAllocations='All Locations';:€VarFormulaDestination=BOTH€ConsolidationDim=m_location€ConsolidationChildVar=vCountry€ConsolidationChildWeight=1.000000€ComponentSortType=ByInput€ComponentSortSense=ASCENDING€"
+	],
+	"DataSource":
+	{
+		"Type":"ASCII",
+		"asciiDecimalSeparator":".",
+		"asciiDelimiterChar":",",
+		"asciiDelimiterType":"Character",
+		"asciiHeaderRecords":1,
+		"asciiQuoteCharacter":"\"",
+		"asciiThousandSeparator":",",
+		"dataSourceNameForClient":"C:\\Cubewise\\Sales & Marketing\\Cubewise University\\Retail Demo Materials\\Location_Data.csv",
+		"dataSourceNameForServer":"C:\\Cubewise\\Sales & Marketing\\Cubewise University\\Retail Demo Materials\\Location_Data.csv"
+	},
+	"Parameters":[],
+	"Variables":
+	[
+		{
+			"Name":"vCountry",
+			"Type":"String",
+			"Position":1,
+			"StartByte":0,
+			"EndByte":0
+		},
+		{
+			"Name":"vState",
+			"Type":"String",
+			"Position":2,
+			"StartByte":0,
+			"EndByte":0
+		},
+		{
+			"Name":"vLocation",
+			"Type":"String",
+			"Position":3,
+			"StartByte":0,
+			"EndByte":0
+		}
+	]
+}

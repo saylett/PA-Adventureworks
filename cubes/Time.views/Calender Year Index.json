@@ -1,0 +1,221 @@
+{
+	"@type":"NativeView",
+	"Name":"Calender Year Index",
+	"Columns":
+	[
+		{
+			"Subset":
+			{
+				"Hierarchy":
+				{
+					"@id":"Dimensions('Month')/Hierarchies('Month')"
+				},
+				"Elements":
+				[
+					{
+						"@id":"Dimensions('Month')/Hierarchies('Month')/Elements('Year')"
+					},
+					{
+						"@id":"Dimensions('Month')/Hierarchies('Month')/Elements('07')"
+					},
+					{
+						"@id":"Dimensions('Month')/Hierarchies('Month')/Elements('08')"
+					},
+					{
+						"@id":"Dimensions('Month')/Hierarchies('Month')/Elements('09')"
+					},
+					{
+						"@id":"Dimensions('Month')/Hierarchies('Month')/Elements('10')"
+					},
+					{
+						"@id":"Dimensions('Month')/Hierarchies('Month')/Elements('11')"
+					},
+					{
+						"@id":"Dimensions('Month')/Hierarchies('Month')/Elements('12')"
+					},
+					{
+						"@id":"Dimensions('Month')/Hierarchies('Month')/Elements('01')"
+					},
+					{
+						"@id":"Dimensions('Month')/Hierarchies('Month')/Elements('02')"
+					},
+					{
+						"@id":"Dimensions('Month')/Hierarchies('Month')/Elements('03')"
+					},
+					{
+						"@id":"Dimensions('Month')/Hierarchies('Month')/Elements('04')"
+					},
+					{
+						"@id":"Dimensions('Month')/Hierarchies('Month')/Elements('05')"
+					},
+					{
+						"@id":"Dimensions('Month')/Hierarchies('Month')/Elements('06')"
+					}
+				]
+			}
+		}
+	],
+	"Rows":
+	[
+		{
+			"Subset":
+			{
+				"Hierarchy":
+				{
+					"@id":"Dimensions('Year')/Hierarchies('Year')"
+				},
+				"Elements":
+				[
+					{
+						"@id":"Dimensions('Year')/Hierarchies('Year')/Elements('All Years')"
+					},
+					{
+						"@id":"Dimensions('Year')/Hierarchies('Year')/Elements('2009')"
+					},
+					{
+						"@id":"Dimensions('Year')/Hierarchies('Year')/Elements('2010')"
+					},
+					{
+						"@id":"Dimensions('Year')/Hierarchies('Year')/Elements('2011')"
+					},
+					{
+						"@id":"Dimensions('Year')/Hierarchies('Year')/Elements('2012')"
+					},
+					{
+						"@id":"Dimensions('Year')/Hierarchies('Year')/Elements('2013')"
+					},
+					{
+						"@id":"Dimensions('Year')/Hierarchies('Year')/Elements('2014')"
+					},
+					{
+						"@id":"Dimensions('Year')/Hierarchies('Year')/Elements('2015')"
+					},
+					{
+						"@id":"Dimensions('Year')/Hierarchies('Year')/Elements('2016')"
+					},
+					{
+						"@id":"Dimensions('Year')/Hierarchies('Year')/Elements('2017')"
+					},
+					{
+						"@id":"Dimensions('Year')/Hierarchies('Year')/Elements('2018')"
+					},
+					{
+						"@id":"Dimensions('Year')/Hierarchies('Year')/Elements('2019')"
+					}
+				]
+			}
+		}
+	],
+	"Titles":
+	[
+		{
+			"Subset":
+			{
+				"Hierarchy":
+				{
+					"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')"
+				},
+				"Elements":
+				[
+					{
+						"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Calendar Year Index')"
+					},
+					{
+						"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Days in Month')"
+					},
+					{
+						"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Days in Next 3 Months')"
+					},
+					{
+						"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Days in Next 6 Months')"
+					},
+					{
+						"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Financial Year')"
+					},
+					{
+						"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Calendar Year')"
+					},
+					{
+						"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Index')"
+					},
+					{
+						"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Financial Year Index')"
+					},
+					{
+						"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Financial Year -1')"
+					},
+					{
+						"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Financial Year -2')"
+					},
+					{
+						"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Financial Year -3')"
+					},
+					{
+						"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Financial Year -4')"
+					},
+					{
+						"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Financial Year -5')"
+					},
+					{
+						"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Financial Year -6')"
+					},
+					{
+						"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Financial Year -7')"
+					},
+					{
+						"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Financial Year -8')"
+					},
+					{
+						"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Financial Year -9')"
+					},
+					{
+						"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Financial Year -10')"
+					},
+					{
+						"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Financial Year -11')"
+					},
+					{
+						"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Financial Year +1')"
+					},
+					{
+						"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Financial Year +2')"
+					},
+					{
+						"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Financial Year +3')"
+					},
+					{
+						"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Financial Year +4')"
+					},
+					{
+						"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Financial Year +5')"
+					},
+					{
+						"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Financial Year +6')"
+					},
+					{
+						"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Financial Year +7')"
+					},
+					{
+						"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Financial Year +8')"
+					},
+					{
+						"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Financial Year +9')"
+					},
+					{
+						"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Financial Year +10')"
+					},
+					{
+						"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Financial Year +11')"
+					}
+				]
+			},
+			"Selected":
+			{
+				"@id":"Dimensions('Time Measures')/Hierarchies('Time Measures')/Elements('Calendar Year Index')"
+			}
+		}
+	],
+	"SuppressEmptyColumns":false,
+	"SuppressEmptyRows":false,
+	"FormatString":"0.#########"
+}

@@ -1,0 +1,131 @@
+{
+	"@type":"Hierarchy",
+	"Name":"Time Measures",
+	"Elements":
+	[
+		{
+			"Name":"Calendar Year Index",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Days in Month",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Days in Next 3 Months",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Days in Next 6 Months",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Financial Year",
+			"Type":"String"
+		},
+		{
+			"Name":"Calendar Year",
+			"Type":"String"
+		},
+		{
+			"Name":"Index",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Financial Year Index",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Financial Year -1",
+			"Type":"String"
+		},
+		{
+			"Name":"Financial Year -2",
+			"Type":"String"
+		},
+		{
+			"Name":"Financial Year -3",
+			"Type":"String"
+		},
+		{
+			"Name":"Financial Year -4",
+			"Type":"String"
+		},
+		{
+			"Name":"Financial Year -5",
+			"Type":"String"
+		},
+		{
+			"Name":"Financial Year -6",
+			"Type":"String"
+		},
+		{
+			"Name":"Financial Year -7",
+			"Type":"String"
+		},
+		{
+			"Name":"Financial Year -8",
+			"Type":"String"
+		},
+		{
+			"Name":"Financial Year -9",
+			"Type":"String"
+		},
+		{
+			"Name":"Financial Year -10",
+			"Type":"String"
+		},
+		{
+			"Name":"Financial Year -11",
+			"Type":"String"
+		},
+		{
+			"Name":"Financial Year +1",
+			"Type":"String"
+		},
+		{
+			"Name":"Financial Year +2",
+			"Type":"String"
+		},
+		{
+			"Name":"Financial Year +3",
+			"Type":"String"
+		},
+		{
+			"Name":"Financial Year +4",
+			"Type":"String"
+		},
+		{
+			"Name":"Financial Year +5",
+			"Type":"String"
+		},
+		{
+			"Name":"Financial Year +6",
+			"Type":"String"
+		},
+		{
+			"Name":"Financial Year +7",
+			"Type":"String"
+		},
+		{
+			"Name":"Financial Year +8",
+			"Type":"String"
+		},
+		{
+			"Name":"Financial Year +9",
+			"Type":"String"
+		},
+		{
+			"Name":"Financial Year +10",
+			"Type":"String"
+		},
+		{
+			"Name":"Financial Year +11",
+			"Type":"String"
+		}
+	],
+	"Subsets@Code.links":
+	[
+		"Time Measures.subsets/}Bedrock.Dim.Clone.json"
+	]
+}

@@ -1,0 +1,51 @@
+{
+	"@type":"Process",
+	"Name":"Bedrock.Security.Client.Group.Assign",
+	"HasSecurityAccess":true,
+	"Code@Code.link":"Bedrock.Security.Client.Group.Assign.ti",
+	"UIData":"CubeAction=1511€DataAction=1503€CubeLogChanges=0€",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pClients",
+			"Prompt":"Client Names Seperated by Delimiter",
+			"Value":"",
+			"Type":"String"
+		},
+		{
+			"Name":"pGroups",
+			"Prompt":"Group Names Seperated by Delimiter",
+			"Value":"",
+			"Type":"String"
+		},
+		{
+			"Name":"pDelimiter",
+			"Prompt":"Delimiter",
+			"Value":";",
+			"Type":"String"
+		},
+		{
+			"Name":"pAddOrRemove",
+			"Prompt":"Add or Remove",
+			"Value":"Add",
+			"Type":"String"
+		},
+		{
+			"Name":"pSecurityRefresh",
+			"Prompt":"Refresh Security?",
+			"Value":"Yes",
+			"Type":"String"
+		},
+		{
+			"Name":"pDebug",
+			"Prompt":"Debug Mode",
+			"Value":0,
+			"Type":"Numeric"
+		}
+	],
+	"Variables":[]
+}

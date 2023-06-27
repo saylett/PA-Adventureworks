@@ -1,0 +1,79 @@
+#region Prolog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+### This Process Builds the Reseller Dimension ###
+
+## CONSTANTS ##
+cDimName = 'Reseller';
+cTopNode1 = 'All Resellers';
+
+
+## Create Dimension if it does not exist ##
+If ( DimensionExists (cDimName ) = 0 ) ;
+  DimensionCreate(cDimName);
+  Else;
+  DimensionDeleteAllElements(cDimName);
+ENDIF;
+
+DimensionSortOrder(cDimName,'ByName','Ascending','ByHierarchy','Ascending');
+
+
+## Insert Top Node of Consolidations ##
+DimensionElementInsert(cDimName,'',cTopNode1,'C');
+
+
+
+#endregion
+#region Metadata
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+
+#### Consolidation 1 ####
+
+# Remove dot from end of key
+sString = vResellerKey; 
+nLength = LONG(sString);
+sLastCharacter = SUBST(sString, nLength, 1);
+If(sLastCharacter @= '.');
+  sString = SUBST(sString, 1, nLength - 1);
+EndIf;
+
+sResellerKey = sString;
+
+
+## Insert N Level elements ##
+DimensionElementInsert(cDimName,'',sResellerKey,'N');
+
+## Assign Parent to Child Relationship ##
+DimensionElementComponentAdd(cDimName, cTopNode1, sResellerKey,1);
+#endregion
+#region Data
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+# Remove dot from end of key
+sString = vResellerKey; 
+nLength = LONG(sString);
+sLastCharacter = SUBST(sString, nLength, 1);
+If(sLastCharacter @= '.');
+  sString = SUBST(sString, 1, nLength - 1);
+EndIf;
+sResellerKey = sString;
+
+# Update Alias
+If(sResellerKey @= '643' % sResellerKey @= '649');
+  vResellerName = vResellerName | ' (' | sResellerKey | ')';
+EndIF;
+
+AttrPutS(vResellerName, 'Reseller', sResellerKey, 'FullName');
+#endregion
+#region Epilog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion

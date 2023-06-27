@@ -1,0 +1,16 @@
+SKIPCHECK;
+
+# Avg Selling Price #
+['Avg Selling Price'] = ['Sales Amount'] \ ['QTY'] ;
+
+# Discount % #
+['Discount %'] = ['Discount Amount'] \ ['Sales Amount'];
+
+
+FEEDERS;
+
+# Avg Selling Price #
+['Sales Amount'] => ['Avg Selling Price'];
+
+# Discount #
+['Discount Amount'] => ['Discount %'];

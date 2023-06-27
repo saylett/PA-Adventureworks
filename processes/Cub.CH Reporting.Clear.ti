@@ -1,0 +1,69 @@
+#region Prolog
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+cCubS = 'CH Data Input';
+cCubT = 'CH Reporting';
+
+cView = GetProcessName();
+
+cFilter = 'CH Version: FQ1+FQ3+Budget & CH Company:' | pEntity | '& CH Cost Centre:' | pCostCentre | '& CH Measure:Value';
+
+ExecuteProcess('Bedrock.Cube.View.Create',
+  'pCube',cCubT,
+  'pView', cView,
+  'pFilter',cFilter,
+  'pSuppressZero',1,
+  'pSuppressConsol',1,
+  'pSuppressRules',1,
+  'pDimensionDelim','&',
+  'pElementStartDelim',':',
+  'pElementDelim','+',
+  'pDebug',1);
+  
+ViewZeroOut(cCubT, cView);
+
+cFilter = 'CH Input Measure:Value 1+Value 2+Value 3+Value 4  & }ElementAttributes_CH Input Measure:Version+Year+Month';
+
+ExecuteProcess('Bedrock.Cube.View.Create',
+  'pCube','}ElementAttributes_CH Input Measure',
+  'pView', cView,
+  'pFilter',cFilter,
+  'pSuppressZero',1,
+  'pSuppressConsol',1,
+  'pSuppressRules',1,
+  'pDimensionDelim','&',
+  'pElementStartDelim',':',
+  'pElementDelim','+',
+  'pDebug',1);
+  
+ViewZeroOut('}ElementAttributes_CH Input Measure', cView);
+
+cFilter = 'CH Company:' | pEntity | '& CH Cost Centre:' | pCostCentre | '& CH Input Measure:Value 1+Value 2+Value 3+Value 4+SCOA+Purpose Code';
+
+ExecuteProcess('Bedrock.Cube.View.Create',
+  'pCube',cCubS,
+  'pView',cView,
+  'pFilter',cFilter,
+  'pSuppressZero',1,
+  'pSuppressConsol',1,
+  'pSuppressRules',1,
+  'pDimensionDelim','&',
+  'pElementStartDelim',':',
+  'pElementDelim','+',
+  'pDebug',1);
+  
+  ViewZeroOut(cCubS, cView);
+#endregion
+#region Metadata
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Data
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Epilog
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion

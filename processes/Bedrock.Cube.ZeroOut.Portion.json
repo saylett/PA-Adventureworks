@@ -1,0 +1,45 @@
+{
+	"@type":"Process",
+	"Name":"Bedrock.Cube.ZeroOut.Portion",
+	"HasSecurityAccess":true,
+	"Code@Code.link":"Bedrock.Cube.ZeroOut.Portion.ti",
+	"UIData":"CubeAction=1511€DataAction=1503€CubeLogChanges=0€",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pCube",
+			"Prompt":"Cube Name",
+			"Value":" ",
+			"Type":"String"
+		},
+		{
+			"Name":"pDelimDim",
+			"Prompt":"Dimension Delimiter",
+			"Value":";",
+			"Type":"String"
+		},
+		{
+			"Name":"pDelimElem",
+			"Prompt":"Element Delimiter",
+			"Value":"|",
+			"Type":"String"
+		},
+		{
+			"Name":"pFilter",
+			"Prompt":"Filter (Dim 1 | Elem1 | Elem2 ",
+			"Value":" ",
+			"Type":"String"
+		},
+		{
+			"Name":"pDebug",
+			"Prompt":"Debug Mode",
+			"Value":0,
+			"Type":"Numeric"
+		}
+	],
+	"Variables":[]
+}

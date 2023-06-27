@@ -1,0 +1,122 @@
+#region Prolog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+
+
+######################################
+##~~  Copyright Cubewise P/L 2010 ~~##
+######################################
+
+# This process finds any dimensions that aren't being used in any cubes
+
+
+### Constants ###
+
+cProcess = 'Bedrock.Dim.}Dimension.CheckUnusedDimensions';
+cTimeStamp = TimSt( Now, '\Y\m\d\h\i\s' );
+cDebugFile = GetProcessErrorFileDirectory | 'UnusedDimensions.' | cTimeStamp | '.csv';
+cDimension = '}Cubes';
+
+### Initialise Debug ###
+
+If( pDebug >= 1 );
+
+  # Set debug file name
+  sDebugFile = cDebugFile | 'Prolog.debug';
+
+  # Log start time
+  AsciiOutput( sDebugFile, 'Process Started: ' | TimSt( Now, '\d-\m-\Y \h:\i:\s' ) );
+
+EndIf;
+
+
+### Number of cubes ###
+
+nCubeCount = DimSiz( '}Cubes' );
+
+
+### End Prolog ###
+#endregion
+#region Metadata
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Data
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+######################################
+##~~  Copyright Cubewise P/L 2010 ~~##
+######################################
+
+
+### Initialise Debug ###
+
+If( pDebug >= 1 );
+  # Set debug file name
+  sDebugFile = cDebugFile | 'Data.debug';
+EndIf;
+
+### Loop through cubes and check for current dimension at least once ###
+
+nCubeIndex = 1;
+
+While( nCubeIndex <= nCubeCount );
+
+  sCube = DimNm( cDimension, nCubeIndex );
+
+  nDimensionIndex = 1;
+  sDimension = TabDim( sCube, nDimensionIndex );
+  While ( sDimension @<> '' );
+    # If match is found then skip to the next dimension
+    If( sDimension @= vElement );
+      # The dimension is in use.
+      ItemSkip;
+    EndIf;
+    nDimensionIndex = nDimensionIndex + 1;
+    sDimension = TabDim( sCube, nDimensionIndex );
+  End;
+
+  nCubeIndex = nCubeIndex + 1;
+
+End;
+
+
+### If this point has been reached then the dimension does not exist in any cube ###
+
+If( pDebug >= 1 );
+  AsciiOutput( sDebugFile, 'Dimension: ' | vElement | ' is not being used by any cubes' );
+EndIf;
+
+
+### End Data ###
+#endregion
+#region Epilog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+######################################
+##~~  Copyright Cubewise P/L 2010 ~~##
+######################################
+
+
+### Initialise Debug ###
+
+If( pDebug >= 1 );
+
+  # Set debug file name
+  sDebugFile = cDebugFile | 'Epilog.debug';
+
+  # Log finish time
+  AsciiOutput( sDebugFile, 'Process Finished: ' | TimSt( Now, '\d-\m-\Y \h:\i:\s' ) );
+
+EndIf;
+
+
+### End Epilog ###
+#endregion

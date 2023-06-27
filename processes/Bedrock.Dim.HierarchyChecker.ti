@@ -1,0 +1,290 @@
+#region Prolog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+# This process creates a cube which shows the number of parents of each element
+# and who the parents are.
+# It can be used for untangling a hierarchy within a dimension where
+# some N or C elements have more than 1 parent
+
+# Code for prolog tab
+# No data source
+
+# Set up 2 parameters:
+# Parameter 1: pDim (the name of the dimension you wish to check)
+# Parameter 2: pTopLevel (the name of the top level in the hierarchy
+# that you wish to check)
+
+### Constants ###
+
+cProcess = 'Bedrock.Dim.HierarchyChecker';
+cTimeStamp = TimSt( Now, '\Y\m\d\h\i\s' );
+cDebugFile = GetProcessErrorFileDirectory | cProcess | '.' | cTimeStamp | '.';
+
+### Initialise Debug ###
+
+If( pDebug >= 1 );
+
+  # Set debug file name
+  sDebugFile = cDebugFile | 'Prolog.debug';
+
+  # Log start time
+  AsciiOutput( sDebugFile, 'Process Started: ' | TimSt( Now, '\d-\m-\Y \h:\i:\s' ) );
+
+  # Log parameters
+  AsciiOutput( sDebugFile, 'Parameters: pDim : ' | pDim );
+  AsciiOutput( sDebugFile, 'Parameters: pTopLevel : ' | pToplevel );
+EndIf;
+
+
+### Validate Parameters ###
+
+nErrors = 0;
+
+# Validate dimension
+If( Trim( pDim ) @= '' );
+  nErrors = 1;
+  sMessage = 'No dimension specified';
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  DataSourceType = 'NULL';
+  ItemReject( sMessage );
+EndIf;
+If( DimensionExists( pDim ) = 0 );
+  nErrors = 1;
+  sMessage = 'Dimension: ' | pDim | ' does not exist';
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  DataSourceType = 'NULL';
+  ItemReject( sMessage );
+EndIf;
+If( DnLev( pDim ) <= 1 );
+  # If dimension is flat then there are no parents and there's no point continuing
+  nErrors = 1;
+  sMessage = 'Dimension: ' | pDim | ' does not contain any consolidations';
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  DataSourceType = 'NULL';
+  ItemReject( sMessage );
+EndIf;
+
+# Validate top node
+If(DIMIX(pDim, pTopLevel) = 0);
+  nErrors = 1;
+  sMessage = 'The top level: ' | pTopLevel | ' does not exist in the ' | pDim | 'dimension';
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  DataSourceType = 'NULL';
+  ItemReject( sMessage );
+EndIf;
+
+If(DTYPE(pDim, pTopLevel) @= 'N');
+  nErrors = 1;
+  sMessage = 'The specified top level ' | pToplevel | 'is not a parent';
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  DataSourceType = 'NULL';
+  ItemReject( sMessage );
+EndIf;
+
+### End Validate Parameters ###
+
+sDimNameSource = pDim;
+sTopLevel =  pTopLevel;
+
+### Create unwound dimension
+# This will copy all the N and C level elements in the hierarchy you wish to check
+# to a new unwound dimension in which both C and N level are N level elements
+
+# First create the dimension
+
+sDimUnwound =  'BedrockTempDim_Hierarchy Checker Unwound ' | sDimNameSource;
+sDimNameTarget = sDimUnwound;
+
+If(DimensionExists(sDimNameTarget) = 0);
+  DimensionCreate(sDimNameTarget);
+  Else;
+  DimensionDeleteAllElements(sDimNameTarget);
+EndIf;
+
+# Add 2 parents: 1 for c level, 1 for n level
+
+sParent = 'C and N Elements';
+DimensionElementInsert(sDimNameTarget,' ', sParent, 'C');
+
+sElement = 'C level';
+DimensionElementInsert(sDimNameTarget,' ',sElement, 'C');
+DimensionElementComponentAdd(sDimNameTarget, sParent, sElement, 1);
+
+sElement = 'N level';
+DimensionElementInsert(sDimNameTarget,' ',sElement, 'C');
+DimensionElementComponentAdd(sDimNameTarget, sParent, sElement, 1);
+
+
+#Add elements to the unwound dimension
+nElements = DIMSIZ(sDimNameSource);
+nCounter = 1;
+WHILE (nCounter <= nElements);
+  sElement = DIMNM(sDimNameSource, nCounter);
+  If(ELISANC(sDimNameSource, sTopLevel, sElement) = 1);
+    If(DIMIX(sDimNameTarget, sElement) = 0);
+      DimensionElementInsert(sDimNameTarget,' ', sElement, 'N');
+
+      # classify element as a c type or n type
+      IF(DTYPE(sDimNameSource, sElement) @= 'C');
+        DimensionElementComponentAdd(sDimNameTarget, 'C level', sElement, 1);
+        Else;
+        DimensionElementComponentAdd(sDimNameTarget, 'N level', sElement, 1);
+      EndIf;
+
+    EndIf;
+  Endif;
+  nCounter = nCounter + 1;
+END;
+
+### End create unwound dimension
+
+### Create unwound parent dimension
+#This dimension has all the C level elements in the hierarchy you're checking
+
+sDimUnwoundParent =  'BedrockTempDim_Hierarchy Checker Unwound Parent ' | sDimNameSource;
+sDimNameTarget = sDimUnwoundParent;
+If(DimensionExists(sDimNameTarget) = 0);
+  DimensionCreate(sDimNameTarget);
+  Else;
+  DimensionDeleteAllElements(sDimNameTarget);
+EndIf;
+
+#Add elements to unwound parent dimension
+#First create top level
+
+sParent = 'All Parents';
+DimensionElementInsert(sDimNameTarget,' ', sParent, 'C');
+
+#Add the top level separately as it's not an ancestor of itself so doesn't get picked
+#up by the loop!
+
+sElement = sTopLevel;
+DimensionElementInsert(sDimNameTarget,' ', sElement, 'N');
+DimensionElementComponentAdd(sDimNameTarget, sParent, sElement, 1);
+
+#Now loop through source dimension to find all C levels
+nElements = DIMSIZ(sDimNameSource);
+nCounter = 1;
+WHILE (nCounter <= nElements);
+  sElement = DIMNM(sDimNameSource, nCounter);
+  If(ELISANC(sDimNameSource, sTopLevel, sElement) = 1);
+    If (DTYPE(sDimNameSource, sElement) @= 'C');
+      If(DIMIX(sDimNameTarget, sElement) = 0);
+        DimensionElementInsert(sDimNameTarget,' ', sElement, 'N');
+        DimensionElementComponentAdd(sDimNameTarget, sParent, sElement, 1);
+      EndIf;
+    EndIf;
+  EndIf;
+  nCounter = nCounter + 1;
+END;
+
+### End create unwound parent dimension
+
+### Create Measure Dimension
+# Give the measure dimension a unique name because the delete process will delete the dimensions created by this process
+# so you don't want the measure dimension to be shared
+
+sDimMeasure =  'BedrockTempDim_Hierarchy Checker Measure ' | pDim;
+sDimNameTarget = sDimMeasure;
+If(DimensionExists(sDimNameTarget) = 0);
+  DimensionCreate(sDimNameTarget);
+  Else;
+  DimensionDeleteAllElements(sDimNameTarget);
+EndIf;
+#Add elements to ancestor dimension
+DimensionElementInsert(sDimNameTarget,' ', 'Flag Parent', 'N');
+### End Measure Dimension
+
+### Create Cube
+sCubeName = 'BedrockTempCube_Hierarchy Checker ' | pDim;
+If(CubeExists(sCubename) = 1);
+  CubeDestroy(sCubename);
+EndIf;
+
+CubeCreate(sCubeName, sDimUnwoundParent, sDimUnwound, sDimMeasure);
+### End Create Cube
+
+##Put code for Cell Put n on the epilog tab otherwise you get an error
+#endregion
+#region Metadata
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Data
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Epilog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+### Initialise Debug ###
+
+If( pDebug >= 1 );
+
+  # Set debug file name
+  sDebugFile = cDebugFile | 'Epilog.debug';
+
+  # Log errors
+  If( nErrors <> 0 );
+    AsciiOutput( sDebugFile, 'Errors Occurred' );
+  EndIf;
+
+  # Log finish time
+  AsciiOutput( sDebugFile, 'Process Finished: ' | TimSt( Now, '\d-\m-\Y \h:\i:\s' ) );
+
+EndIf;
+
+
+### If errors occurred terminate process with a major error status ###
+
+If( nErrors <> 0 );
+  ProcessQuit;
+EndIf;
+
+
+### End Debug ###
+
+
+
+
+### Flag parents (i.e. immediate parents, not grand parents or great grandparents etc)
+# Loop through the unwound dimension
+# for each element, loop through the unwound parents
+#if parent is found, flag the value in the hierarchy checker cube
+nOuterLoopElements = DIMSIZ(sDimUnwound);
+nInnerLoopElements = DIMSIZ(sDimUnwoundParent);
+nOuterLoopCounter = 1;
+nInnerLoopCounter = 1;
+WHILE (nOuterLoopCounter <= nOuterLoopElements);
+  sOuterLoopElement = DIMNM(sDimUnwound, nOuterLoopCounter);
+  WHILE (nInnerLoopCounter <= nInnerLoopElements);
+    sInnerLoopElement = DIMNM(sDimUnwoundParent, nInnerLoopCounter) ;
+    #check whether inner loop element is a parent of the outer loop element
+    If(ELISPAR(sDimNameSource, sInnerLoopElement, sOuterLoopElement) = 1);
+      If(cellisupdateable( sCubeName,  sInnerLoopElement, sOuterLoopElement, 'Flag Parent') = 1);
+        CellPutN(1, sCubeName,  sInnerLoopElement, sOuterLoopElement, 'Flag Parent');
+      endif;
+    EndIf;
+    nInnerLoopCounter = nInnerLoopCounter + 1;
+  END;
+  #reset inner loop counter!
+  nInnerLoopCounter = 1;
+  nOuterLoopCounter = nOuterLoopCounter + 1;
+END;
+#endregion

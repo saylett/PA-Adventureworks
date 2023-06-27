@@ -1,0 +1,42 @@
+{
+	"@type":"Process",
+	"Name":"Dim - Sales Reason",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Dim - Sales Reason.ti",
+	"UIData":"CubeAction=1511€DataAction=1503€CubeLogChanges=0€",
+	"VariablesUIData":
+	[
+		"IgnoredInputVarName=SalesReasonKey€VarType=33€ColType=1165€",
+		"IgnoredInputVarName=SalesReasonAlternateKey€VarType=33€ColType=1165€",
+		"VarType=32€ColType=827€",
+		"VarType=32€ColType=827€"
+	],
+	"DataSource":
+	{
+		"Type":"ODBC",
+		"dataSourceNameForClient":"Adventure Works x64",
+		"dataSourceNameForServer":"Adventure Works x64",
+		"password":"jUVkeBJ1R6azGQ\\s5fqs_8x@2Rv4^[t@]j=<@kY6aTlpi]437v:_\\\\Itc_XfPem8uZCGbwaOwKP`0>^sQ;0b9dVhEU7ryUg[a0fQ^X<KmqdLM>@Bh`NbCTY1XQNEe`XDx;17B@k@8dFr2vm3i1Zj9Jux4;A\\v3Gs6Xv:g;mI6aSRtaoj>o@@R9KwX<jBxfsAzVhkS4Bj",
+		"query":"select * from dimSalesReason",
+		"userName":"",
+		"usesUnicode":true
+	},
+	"Parameters":[],
+	"Variables":
+	[
+		{
+			"Name":"SalesReasonName",
+			"Type":"String",
+			"Position":3,
+			"StartByte":0,
+			"EndByte":0
+		},
+		{
+			"Name":"SalesReasonReasonType",
+			"Type":"String",
+			"Position":4,
+			"StartByte":0,
+			"EndByte":0
+		}
+	]
+}

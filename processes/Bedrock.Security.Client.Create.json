@@ -1,0 +1,45 @@
+{
+	"@type":"Process",
+	"Name":"Bedrock.Security.Client.Create",
+	"HasSecurityAccess":true,
+	"Code@Code.link":"Bedrock.Security.Client.Create.ti",
+	"UIData":"CubeAction=1511€DataAction=1503€CubeLogChanges=0€",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pClients",
+			"Prompt":"List of Clients Seperated by Delimiter",
+			"Value":"",
+			"Type":"String"
+		},
+		{
+			"Name":"pPassword",
+			"Prompt":"Initial Password",
+			"Value":"",
+			"Type":"String"
+		},
+		{
+			"Name":"pMaxPorts",
+			"Prompt":"Maximum Ports",
+			"Value":5,
+			"Type":"Numeric"
+		},
+		{
+			"Name":"pDelimiter",
+			"Prompt":"Delimiter",
+			"Value":";",
+			"Type":"String"
+		},
+		{
+			"Name":"pDebug",
+			"Prompt":"Debug Mode",
+			"Value":0,
+			"Type":"Numeric"
+		}
+	],
+	"Variables":[]
+}

@@ -1,0 +1,34 @@
+{
+	"@type":"Subset",
+	"Name":"All Zero Level",
+	"Elements":
+	[
+		{
+			"@id":"Dimensions('Organization')/Hierarchies('Organization')/Elements('13')"
+		},
+		{
+			"@id":"Dimensions('Organization')/Hierarchies('Organization')/Elements('3')"
+		},
+		{
+			"@id":"Dimensions('Organization')/Hierarchies('Organization')/Elements('4')"
+		},
+		{
+			"@id":"Dimensions('Organization')/Hierarchies('Organization')/Elements('5')"
+		},
+		{
+			"@id":"Dimensions('Organization')/Hierarchies('Organization')/Elements('6')"
+		},
+		{
+			"@id":"Dimensions('Organization')/Hierarchies('Organization')/Elements('7')"
+		},
+		{
+			"@id":"Dimensions('Organization')/Hierarchies('Organization')/Elements('8')"
+		},
+		{
+			"@id":"Dimensions('Organization')/Hierarchies('Organization')/Elements('11')"
+		},
+		{
+			"@id":"Dimensions('Organization')/Hierarchies('Organization')/Elements('12')"
+		}
+	]
+}

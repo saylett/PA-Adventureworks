@@ -1,0 +1,5 @@
+{
+	"@type":"Subset",
+	"Name":"15",
+	"Expression":"{[CH Item].[CH Item].[00001],[CH Item].[CH Item].[00002],[CH Item].[CH Item].[00003],[CH Item].[CH Item].[00004],[CH Item].[CH Item].[00005],[CH Item].[CH Item].[00006],[CH Item].[CH Item].[00007],[CH Item].[CH Item].[00008],[CH Item].[CH Item].[00009],[CH Item].[CH Item].[00010],[CH Item].[CH Item].[00011],[CH Item].[CH Item].[00012],[CH Item].[CH Item].[00013],[CH Item].[CH Item].[00014],[CH Item].[CH Item].[00015]}"
+}

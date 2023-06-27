@@ -1,0 +1,27 @@
+{
+	"@type":"Process",
+	"Name":"Bedrock.Dim.HierarchyCheckerDelete",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Bedrock.Dim.HierarchyCheckerDelete.ti",
+	"UIData":"CubeAction=1511€DataAction=1503€CubeLogChanges=0€",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pDim",
+			"Prompt":"Delete Hierarchy Checker cube and dimensions for which dimension?",
+			"Value":"placeholder dim",
+			"Type":"String"
+		},
+		{
+			"Name":"pDebug",
+			"Prompt":"Debug Mode 1= yes",
+			"Value":1,
+			"Type":"Numeric"
+		}
+	],
+	"Variables":[]
+}

@@ -1,0 +1,66 @@
+{
+	"@type":"Process",
+	"Name":"xcub_movie_sales_update",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"xcub_movie_sales_update.ti",
+	"UIData":"CubeAction=1576€DataAction=1503€CubeName=xMovie Sales€CubeLogChanges=0€MeasuresDimOrder=4€",
+	"VariablesUIData":
+	[
+		"VarType=32€ColType=825€VarDimension=movie€VarDimAction=As Is€VarElemType=Numeric€VarDimOrder=1€VarDimElemSortType=ByInput€VarDimElemSortSense=ASCENDING€",
+		"VarType=32€ColType=825€VarDimension=m_location€VarDimAction=As Is€VarElemType=Numeric€VarDimOrder=2€VarDimElemSortType=ByInput€VarDimElemSortSense=ASCENDING€",
+		"VarType=32€ColType=825€VarDimension=Month€VarDimAction=As Is€VarElemType=Numeric€VarDimOrder=3€VarDimElemSortType=ByInput€VarDimElemSortSense=ASCENDING€",
+		"VarType=32€ColType=825€VarDimension=Year€VarDimAction=As Is€VarElemType=Numeric€VarDimOrder=4€VarDimElemSortType=ByInput€VarDimElemSortSense=ASCENDING€",
+		"VarType=33€ColType=826€"
+	],
+	"DataSource":
+	{
+		"Type":"ASCII",
+		"asciiDecimalSeparator":".",
+		"asciiDelimiterChar":",",
+		"asciiDelimiterType":"Character",
+		"asciiHeaderRecords":1,
+		"asciiQuoteCharacter":"\"",
+		"asciiThousandSeparator":",",
+		"dataSourceNameForClient":"C:\\Cubewise\\Sales & Marketing\\Cubewise University\\Retail Demo Materials\\Movie_Sales_Data.csv",
+		"dataSourceNameForServer":"C:\\Cubewise\\Sales & Marketing\\Cubewise University\\Retail Demo Materials\\Movie_Sales_Data.csv"
+	},
+	"Parameters":[],
+	"Variables":
+	[
+		{
+			"Name":"vMovie",
+			"Type":"String",
+			"Position":1,
+			"StartByte":0,
+			"EndByte":0
+		},
+		{
+			"Name":"vLocation",
+			"Type":"String",
+			"Position":2,
+			"StartByte":0,
+			"EndByte":0
+		},
+		{
+			"Name":"vMonth",
+			"Type":"String",
+			"Position":3,
+			"StartByte":0,
+			"EndByte":0
+		},
+		{
+			"Name":"vYear",
+			"Type":"String",
+			"Position":4,
+			"StartByte":0,
+			"EndByte":0
+		},
+		{
+			"Name":"vValue",
+			"Type":"Numeric",
+			"Position":5,
+			"StartByte":0,
+			"EndByte":0
+		}
+	]
+}

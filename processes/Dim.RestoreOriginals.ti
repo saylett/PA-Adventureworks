@@ -1,0 +1,94 @@
+#region Prolog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+
+
+#endregion
+#region Metadata
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+#endregion
+#region Data
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+sDim = vDim;
+
+#Ignore the bedrock dimensions v1..v28
+If(sDim @= 'v1'
+   %
+   sDim @='v2'
+   %
+   sDim @='v3'
+   %
+   sDim @='v4'
+   %
+   sDim @='v5'
+   %
+   sDim @='v6'
+   %
+   sDim @='v7'
+   %
+   sDim @='v8'
+   %
+   sDim @='v9'
+   %
+   sDim @='v10'
+   %
+   sDim @='v11'
+   %
+   sDim @='v12'
+   %
+   sDim @='v13'
+   %
+   sDim @='v14'
+   %
+   sDim @='v15'
+   %
+   sDim @='v16'
+   %
+   sDim @='v17'
+   %
+   sDim @='v18'
+   %
+   sDim @='v19'
+    %
+   sDim @='v20'
+   %
+   sDim @='v21'
+   %
+   sDim @='v22'
+   %
+   sDim @='v23'
+   %
+   sDim @='v24'
+   %
+   sDim @='v25'
+   %
+   sDim @='v26'
+   %
+   sDim @='v27'
+   %
+   sDim @='v28');
+  ITEMSKIP;
+ENDIF;
+
+# Don't restore system dimensions, the attribute dimensions will be replaced when the clone process copies attributes
+# Just restore dimensions that don't have original in the name
+If(subst(sDim,1,1) @<> '}' & SCAN('Original', sDim) = 0);
+  sSourceDim = sDim | ' Original';
+  sTargetDim = sDim;
+  ExecuteProcess('Bedrock.Dim.Clone','pSourceDim',sSourceDim, 'pTargetDim', sTargetDim, 'pAttr',1, 'pDebug',0);
+Endif;
+#endregion
+#region Epilog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+#endregion

@@ -1,0 +1,148 @@
+#region Prolog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+
+#####################################################################################
+##~~Copyright bedrocktm1.org 2012 www.bedrocktm1.org/how-to-licence.php Ver      ~~##
+#####################################################################################
+
+# This process attaches a rule file to a cube.
+# It can be used in tandem with Bedrock.Cube.DropRules
+
+# Rob Cregan, 2012
+
+### Constants ###
+
+cProcess = 'Bedrock.Cube.AttachRules';
+cTimeStamp = TimSt( Now, '\Y\m\d\h\i\s' );
+cDebugFile = GetProcessErrorFileDirectory | cProcess | '.' | cTimeStamp | '.';
+
+### Initialise Debug ###
+
+If( pDebug >= 1 );
+
+  # Set debug file name
+  sDebugFile = cDebugFile | 'Prolog.debug';
+
+  # Log start time
+  AsciiOutput( sDebugFile, 'Process Started: ' | TimSt( Now, '\d-\m-\Y \h:\i:\s' ) );
+
+  # Log parameters
+  AsciiOutput( sDebugFile, 'Parameters: pCube     : ' | pCube );
+
+EndIf;
+
+### Validate Parameters ###
+
+nErrors = 0;
+
+sCube = Trim(pCube);
+
+# The exported rule file is the original
+sRuleFile = sCube | 'Exported Rule File.rux';
+
+# If no cube has been specified then terminate process
+If( sCube @= '' );
+  nErrors = 1;
+  sMessage = 'No cube specified';
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+
+  ItemReject( sMessage );
+
+  Else;
+
+  #check if cube exists
+  If( CubeExists( sCube ) = 1 );
+
+    If( pDebug >= 1 );
+      AsciiOutput( sDebugFile, 'Cube: ' | sCube | ' OK' );
+    EndIf;
+
+    # Check if the rule file exists
+    If( FileExists( sRuleFile ) = 1 );
+      If( pDebug >= 1 );
+        AsciiOutput( sDebugFile, 'Rule file found' );
+      EndIf;
+      If( pDebug <= 1 );
+        RuleLoadFromFile( sCube, sRuleFile );
+      EndIf;
+
+      Else;
+
+      If( pDebug >= 1 );
+        AsciiOutput( sDebugFile, 'Cannot attach rule.  Rule does not exist: ' | sCube );
+      EndIf;
+    EndIf;
+    # End of Check if the rule file exists
+  Else;
+  # Cube isn't blank but the specified cube doesn't exist
+    If( pDebug >= 1 );
+      AsciiOutput( sDebugFile, 'Cube: ' | sCube | ' does not exist' );
+    EndIf;
+  EndIf;
+  # End of check if cube exists
+
+EndIf;
+
+
+### End Prolog ###
+#endregion
+#region Metadata
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+#endregion
+#region Data
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+#endregion
+#region Epilog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+
+#####################################################################################
+##~~Copyright bedrocktm1.org 2011 www.bedrocktm1.org/how-to-licence.php Ver 1.0.0~~##
+#####################################################################################
+
+
+### Initialise Debug ###
+
+If( pDebug >= 1 );
+
+  # Set debug file name
+  sDebugFile = cDebugFile | 'Epilog.debug';
+
+EndIf;
+
+### Finalise Debug ###
+
+If( pDebug >= 1 );
+
+  # Log errors
+  If( nErrors <> 0 );
+    AsciiOutput( sDebugFile, 'Errors Occurred' );
+  EndIf;
+
+  # Log finish time
+  AsciiOutput( sDebugFile, 'Process Finished: ' | TimSt( Now, '\d-\m-\Y \h:\i:\s' ) );
+
+EndIf;
+
+
+### If errors occurred terminate process with a major error status ###
+
+If( nErrors <> 0 );
+  ProcessQuit;
+EndIf;
+
+### End Epilog ###
+#endregion

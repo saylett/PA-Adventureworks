@@ -1,0 +1,13 @@
+{
+	"@type":"Process",
+	"Name":"Dim.Region with Local Descriptions.AddAttributes",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Dim.Region with Local Descriptions.AddAttributes.ti",
+	"UIData":"CubeAction=1511€DataAction=1503€CubeLogChanges=0€",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":[],
+	"Variables":[]
+}

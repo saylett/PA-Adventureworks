@@ -1,0 +1,24 @@
+{
+	"@type":"Hierarchy",
+	"Name":"Scenario",
+	"Elements":
+	[
+		{
+			"Name":"1",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"2",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"3",
+			"Type":"Numeric"
+		}
+	],
+	"Subsets@Code.links":
+	[
+		"Scenario.subsets/Default.json",
+		"Scenario.subsets/}Bedrock.Cube.ZeroOut.Portion.50474.json"
+	]
+}

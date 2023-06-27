@@ -1,0 +1,39 @@
+{
+	"@type":"Process",
+	"Name":"Bedrock.Dim.HierarchyComparer",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Bedrock.Dim.HierarchyComparer.ti",
+	"UIData":"CubeAction=1511€DataAction=1503€CubeLogChanges=0€",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pDim",
+			"Prompt":"Name of dimension to check?",
+			"Value":"placeholder dim",
+			"Type":"String"
+		},
+		{
+			"Name":"pTopNode1",
+			"Prompt":"Top node in first hierarchy?",
+			"Value":"placeholder element",
+			"Type":"String"
+		},
+		{
+			"Name":"pTopNode2",
+			"Prompt":"Top node in second hierarchy?",
+			"Value":"placeholder element",
+			"Type":"String"
+		},
+		{
+			"Name":"pDebug",
+			"Prompt":"Debug mode (1 = yes)?",
+			"Value":1,
+			"Type":"Numeric"
+		}
+	],
+	"Variables":[]
+}

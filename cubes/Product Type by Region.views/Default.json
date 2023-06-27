@@ -1,0 +1,241 @@
+{
+	"@type":"NativeView",
+	"Name":"Default",
+	"Columns":
+	[
+		{
+			"Subset":
+			{
+				"@id":"Dimensions('Period')/Hierarchies('Period')/Subsets('Default')"
+			}
+		}
+	],
+	"Rows":
+	[
+		{
+			"Subset":
+			{
+				"Hierarchy":
+				{
+					"@id":"Dimensions('Product Type')/Hierarchies('Product Type')"
+				},
+				"Elements":
+				[
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Bike Racks')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Bike Stands')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Bottles and Cages')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Cleaners')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Fenders')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Helmets')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Hydration Packs')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Lights')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Locks')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Panniers')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Pumps')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Tires and Tubes')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Mountain Bikes')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Road Bikes')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Touring Bikes')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Bib-Shorts')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Caps')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Gloves')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Jerseys')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Shorts')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Socks')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Tights')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Vests')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Bottom Brackets')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Brakes')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Chains')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Cranksets')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Derailleurs')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Forks')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Handlebars')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Headsets')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Mountain Frames')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Pedals')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Road Frames')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Saddles')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Touring Frames')"
+					},
+					{
+						"@id":"Dimensions('Product Type')/Hierarchies('Product Type')/Elements('Wheels')"
+					}
+				]
+			}
+		},
+		{
+			"Subset":
+			{
+				"Hierarchy":
+				{
+					"@id":"Dimensions('Region')/Hierarchies('Region')"
+				},
+				"Elements":
+				[
+					{
+						"@id":"Dimensions('Region')/Hierarchies('Region')/Elements('13')"
+					},
+					{
+						"@id":"Dimensions('Region')/Hierarchies('Region')/Elements('3')"
+					},
+					{
+						"@id":"Dimensions('Region')/Hierarchies('Region')/Elements('4')"
+					},
+					{
+						"@id":"Dimensions('Region')/Hierarchies('Region')/Elements('5')"
+					},
+					{
+						"@id":"Dimensions('Region')/Hierarchies('Region')/Elements('6')"
+					},
+					{
+						"@id":"Dimensions('Region')/Hierarchies('Region')/Elements('7')"
+					},
+					{
+						"@id":"Dimensions('Region')/Hierarchies('Region')/Elements('8')"
+					},
+					{
+						"@id":"Dimensions('Region')/Hierarchies('Region')/Elements('11')"
+					},
+					{
+						"@id":"Dimensions('Region')/Hierarchies('Region')/Elements('12')"
+					}
+				]
+			}
+		}
+	],
+	"Titles":
+	[
+		{
+			"Subset":
+			{
+				"Hierarchy":
+				{
+					"@id":"Dimensions('Version')/Hierarchies('Version')"
+				},
+				"Expression":"TM1SubsetAll([Version])"
+			},
+			"Selected":
+			{
+				"@id":"Dimensions('Version')/Hierarchies('Version')/Elements('Actual vs Budget %')"
+			}
+		},
+		{
+			"Subset":
+			{
+				"Hierarchy":
+				{
+					"@id":"Dimensions('Year')/Hierarchies('Year')"
+				},
+				"Expression":"TM1SubsetAll([Year])"
+			},
+			"Selected":
+			{
+				"@id":"Dimensions('Year')/Hierarchies('Year')/Elements('2013')"
+			}
+		},
+		{
+			"Subset":
+			{
+				"Hierarchy":
+				{
+					"@id":"Dimensions('Product Type by Region Measure')/Hierarchies('Product Type by Region Measure')"
+				},
+				"Elements":
+				[
+					{
+						"@id":"Dimensions('Product Type by Region Measure')/Hierarchies('Product Type by Region Measure')/Elements('Freight Rate')"
+					}
+				]
+			},
+			"Selected":
+			{
+				"@id":"Dimensions('Product Type by Region Measure')/Hierarchies('Product Type by Region Measure')/Elements('Freight Rate')"
+			}
+		},
+		{
+			"Subset":
+			{
+				"@id":"Dimensions('Currency')/Hierarchies('Currency')/Subsets('Default')"
+			},
+			"Selected":
+			{
+				"@id":"Dimensions('Currency')/Hierarchies('Currency')/Elements('GBP')"
+			}
+		}
+	],
+	"SuppressEmptyColumns":false,
+	"SuppressEmptyRows":false,
+	"FormatString":"0.#########"
+}

@@ -1,0 +1,36 @@
+SKIPCHECK;
+
+['CH Input Measure':{'Value 1', 'Value 2', 'Value 3', 'Value 4'}] = N:
+
+  If( DB('CH Data Input', !CH Company, !CH Cost Centre, !CH Item, 'SCOA') @= '',
+    STET,
+    Continue
+  )
+;
+
+['CH Input Measure':{'Value 1', 'Value 2', 'Value 3', 'Value 4'}] = N:
+
+  If( DB('CH Data Input', !CH Company, !CH Cost Centre, !CH Item, 'Purpose Code') @= '',
+    STET,
+    Continue
+  )
+;
+
+['CH Input Measure':{'Value 1', 'Value 2', 'Value 3', 'Value 4'}] = N:
+
+  If( DB('}ElementAttributes_CH Input Measure', !CH Input Measure, 'Version') @= 'Actual',
+    DB('CH Reporting', 
+        'Actual', 
+        DB('}ElementAttributes_CH Input Measure', !CH Input Measure, 'Year'), 
+        DB('}ElementAttributes_CH Input Measure', !CH Input Measure, 'Month'), 
+        'Local', !CH Company, !CH Cost Centre, 
+        DB('CH Data Input', !CH Company, !CH Cost Centre, !CH Item, 'SCOA'), 
+        DB('CH Data Input', !CH Company, !CH Cost Centre, !CH Item, 'Purpose Code'), 
+        'Value'
+      )
+  ,
+    Continue
+  )
+;
+
+FEEDERS;

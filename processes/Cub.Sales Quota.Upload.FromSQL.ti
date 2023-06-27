@@ -1,0 +1,44 @@
+#region Prolog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+## This Process uploads the Sales Quota ##
+
+## CONSTANTS ##
+cCubeName = 'Sales Quota';
+cVersion = 'Actual';
+cMeasure = 'Amount';
+
+
+
+## clear Data from Cube ##
+CubeclearData(cCubeName);
+
+
+
+
+#endregion
+#region Metadata
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Data
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+sYear = NumbertoString(vFiscalyear);
+sPeriod = vEnglishmonthname;
+sEmployeeID = vEmployeenationalidalternatekey;
+nQuota = NUMBR(vSalesamountquota);
+
+nValueGet = CellGetN(cCubeName,cVersion,sYear,sPeriod,sEmployeeID,cMeasure);
+CellPutN( (nValueGet + nQuota ) , cCubeName,cVersion,sYear,sPeriod,sEmployeeID,cMeasure);
+#endregion
+#region Epilog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion

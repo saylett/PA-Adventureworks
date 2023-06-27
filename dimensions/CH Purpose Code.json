@@ -1,0 +1,13 @@
+{
+	"@type":"Dimension",
+	"Name":"CH Purpose Code",
+	"AllLeavesHierarchyName":"",
+	"DefaultHierarchy":
+	{
+		"@id":"Dimensions('CH Purpose Code')/Hierarchies('CH Purpose Code')"
+	},
+	"Hierarchies@Code.links":
+	[
+		"CH Purpose Code.hierarchies/CH Purpose Code.json"
+	]
+}

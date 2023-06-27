@@ -1,0 +1,20 @@
+{
+	"@type":"Hierarchy",
+	"Name":"CH Measure",
+	"Elements":
+	[
+		{
+			"Name":"Value",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Comment",
+			"Type":"String"
+		}
+	],
+	"Subsets@Code.links":
+	[
+		"CH Measure.subsets/Cub.CH Reporting.Clear.json",
+		"CH Measure.subsets/Cub.CH Reporting.Load from CH Data Input.json"
+	]
+}

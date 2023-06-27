@@ -1,0 +1,12 @@
+{
+	"@type":"Process",
+	"Name":"zAdd Electric Elements to Products",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"zAdd Electric Elements to Products.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":[],
+	"Variables":[]
+}

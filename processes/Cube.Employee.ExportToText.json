@@ -1,0 +1,13 @@
+{
+	"@type":"Process",
+	"Name":"Cube.Employee.ExportToText",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Cube.Employee.ExportToText.ti",
+	"UIData":"CubeAction=1511€DataAction=1503€CubeLogChanges=0€",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":[],
+	"Variables":[]
+}

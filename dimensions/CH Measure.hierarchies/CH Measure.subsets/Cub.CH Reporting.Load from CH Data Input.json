@@ -1,0 +1,10 @@
+{
+	"@type":"Subset",
+	"Name":"Cub.CH Reporting.Load from CH Data Input",
+	"Elements":
+	[
+		{
+			"@id":"Dimensions('CH Measure')/Hierarchies('CH Measure')/Elements('Value')"
+		}
+	]
+}

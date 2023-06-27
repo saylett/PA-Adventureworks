@@ -1,0 +1,16 @@
+{
+	"@type":"Subset",
+	"Name":"Cub.CH Reporting.Load from CH Data Input",
+	"Elements":
+	[
+		{
+			"@id":"Dimensions('CH Version')/Hierarchies('CH Version')/Elements('FQ1')"
+		},
+		{
+			"@id":"Dimensions('CH Version')/Hierarchies('CH Version')/Elements('FQ3')"
+		},
+		{
+			"@id":"Dimensions('CH Version')/Hierarchies('CH Version')/Elements('Budget')"
+		}
+	]
+}

@@ -1,0 +1,41 @@
+{
+	"@type":"NativeView",
+	"Name":"Default",
+	"Columns":
+	[
+		{
+			"Subset":
+			{
+				"Hierarchy":
+				{
+					"@id":"Dimensions('System Info Measures')/Hierarchies('System Info Measures')"
+				},
+				"Elements":
+				[
+					{
+						"@id":"Dimensions('System Info Measures')/Hierarchies('System Info Measures')/Elements('String')"
+					},
+					{
+						"@id":"Dimensions('System Info Measures')/Hierarchies('System Info Measures')/Elements('Numeric')"
+					},
+					{
+						"@id":"Dimensions('System Info Measures')/Hierarchies('System Info Measures')/Elements('Comment')"
+					}
+				]
+			}
+		}
+	],
+	"Rows":
+	[
+		{
+			"Subset":
+			{
+				"@id":"Dimensions('System Info Parameter')/Hierarchies('System Info Parameter')/Subsets('Default')"
+			}
+		}
+	],
+	"Titles":[],
+	"SuppressEmptyColumns":false,
+	"SuppressEmptyRows":false,
+	"FormatString":"0.#########"
+}

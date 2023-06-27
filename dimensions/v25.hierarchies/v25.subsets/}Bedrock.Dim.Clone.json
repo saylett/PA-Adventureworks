@@ -1,0 +1,5 @@
+{
+	"@type":"Subset",
+	"Name":"}Bedrock.Dim.Clone",
+	"Expression":"TM1SubsetAll([v25])"
+}

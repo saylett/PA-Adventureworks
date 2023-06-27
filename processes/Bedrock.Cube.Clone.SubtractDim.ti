@@ -1,0 +1,965 @@
+#region Prolog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+######################################
+##~~  Copyright Cubewise P/L 2010 ~~##
+######################################
+
+# This process copies an existing cube and deletes dimension if the pNewDim parameter is not balnk
+# There is an option to include data and rules when copying the cube.
+# If a target cube name is specified that already exists in the model, that cube will be destroyed and recreated.
+# If the target cube is left blank or is the same as the source cube the cloned cube will inherit the source
+# cube name with "_Summary" appended.
+
+# Notes:
+# - As this TI has a view as a data source it requires the implicit variables NValue, SValue and Value_is_String
+# - To edit this TI without VIZIER either a tmp cube with 24 dims is needed as the preview data source or set the data
+#   source to ASCII and manually edit the TI in notepad after saving to add back the required implicit view variables
+
+
+### Constants ###
+
+cProcess = 'Bedrock.Cube.Clone.SubtractDim';
+cTimeStamp = TimSt( Now, '\Y\m\d\h\i\s' );
+cDebugFile = GetProcessErrorFileDirectory | cProcess | '.' | cTimeStamp | '.';
+
+sDelimDim = TRIM(pDimensionDelim);
+sElementStartDelim = TRIM(pElementStartDelim);
+sDelimElem = TRIM(pElementDelim);
+
+### Initialise Debug ###
+
+If( pDebug >= 1 );
+
+  # Set debug file name
+  sDebugFile = cDebugFile | 'Prolog.debug';
+
+  # Log start time
+  AsciiOutput( sDebugFile, 'Process Started: ' | TimSt( Now, '\d-\m-\Y \h:\i:\s' ) );
+
+  # Log parameters
+  AsciiOutput( sDebugFile, 'Parameters: pSourceCube   : ' | pSourceCube );
+  AsciiOutput( sDebugFile, '            pTargetCube   : ' | pTargetCube );
+  AsciiOutput( sDebugFile, '            pIncludeRules : ' | NumberToString( pIncludeRules ) );
+  AsciiOutput( sDebugFile, '            pIncludeData  : ' | NumberToString( pIncludeData ) );
+  AsciiOutput( sDebugFile, '            pView   : ' | pView );
+  AsciiOutput( sDebugFile, '            pRuleValues   : ' | NumberToString( pRuleValues ) );
+  AsciiOutput( sDebugFile, '            pDimExcluded   : ' | pDimExcluded );
+  AsciiOutput( sDebugFile, '            pSourceElement   : ' | pSourceElement );
+EndIf;
+
+
+### Initialise ###
+
+nDataCheck = 0;
+
+
+### Validate Parameters ###
+
+nErrors = 0;
+
+# Validate source cube
+If( pSourceCube @= '' % CubeExists( pSourceCube ) = 0 );
+  nErrors = 1;
+  sMessage = 'Invalid source cube specified: ' | pSourceCube;
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  DataSourceType = 'NULL';
+  ItemReject( sMessage );
+EndIf;
+
+# Validate target cube
+If( pTargetCube @= '' % pTargetCube @= pSourceCube );
+  pTargetCube = pSourceCube | '_Summary';
+EndIf;
+
+# A view name wasn't provided, so just use a timestamp
+If( TRIM(pView) @= '' );
+  sMessage = 'A view name was not provided, so timestamp will be used';
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  pView = cTimestamp;
+  sSubset = pView;
+EndIf;
+
+sTargetView = pView | 'Target';
+sTargetSubset = sTargetView;
+
+### Determine number of dims in source cube ###
+
+nDimensionCount = 0;
+While( TabDim( pSourceCube, nDimensionCount + 1) @<> '' );
+  # Find the index of the dimension to be excluded
+  nDimensionCount = nDimensionCount + 1;
+  IF(TabDim( pSourceCube, nDimensionCount) @= pDimExcluded);
+    nIndexOfExcludedDimension = nDimensionCount;
+  EndIf;
+End;
+
+If( nDimensionCount > 24 );
+  nErrors = 1;
+  sMessage = 'Cube has too many dimensions: ' | pSourceCube | ' max 24 dims catered for, TI must be altered to accomodate.';
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  DataSourceType = 'NULL';
+  ItemReject( sMessage );
+EndIf;
+
+### Set how many variables are in the source
+nVariables = nDimensionCount;
+
+### Subtract 1 to the dimension count because the new cube will have 1 less dimension
+nDimensionCount = nDimensionCount - 1;
+
+
+
+
+
+
+### Identify the positions of the dimensions in the new cube
+# If dim is before the one to be excluded, then its index stays the same
+# otherwise the index skips
+
+nIndex = 1;
+If(nIndex <> nIndexOfExcludedDimension);
+  sDim1 = TabDim( pSourceCube, nIndex);
+  Else;
+  sDim1 = TabDim( pSourceCube, nIndex + 1);
+EndIf;
+
+nIndex = 2;
+If(nIndex < nIndexOfExcludedDimension);
+  sDim2 = TabDim( pSourceCube, nIndex);
+  Else;
+  sDim2 = TabDim( pSourceCube, nIndex + 1);
+EndIf;
+
+nIndex = 3;
+If(nIndex < nIndexOfExcludedDimension);
+  sDim3 = TabDim( pSourceCube, nIndex);
+  Else;
+  sDim3 = TabDim( pSourceCube, nIndex + 1);
+EndIf;
+
+nIndex = 4;
+If(nIndex < nIndexOfExcludedDimension);
+  sDim4 = TabDim( pSourceCube, nIndex);
+  Else;
+  sDim4 = TabDim( pSourceCube, nIndex + 1);
+EndIf;
+
+nIndex = 5;
+If(nIndex < nIndexOfExcludedDimension);
+  sDim5 = TabDim( pSourceCube, nIndex);
+  Else;
+  sDim5 = TabDim( pSourceCube, nIndex + 1);
+EndIf;
+
+nIndex = 6;
+If(nIndex < nIndexOfExcludedDimension);
+  sDim6 = TabDim( pSourceCube, nIndex);
+  Else;
+  sDim6 = TabDim( pSourceCube, nIndex + 1);
+EndIf;
+
+nIndex = 7;
+If(nIndex < nIndexOfExcludedDimension);
+  sDim7 = TabDim( pSourceCube, nIndex);
+  Else;
+  sDim7 = TabDim( pSourceCube, nIndex + 1);
+EndIf;
+
+nIndex = 8;
+If(nIndex < nIndexOfExcludedDimension);
+  sDim8 = TabDim( pSourceCube, nIndex);
+  Else;
+  sDim8 = TabDim( pSourceCube, nIndex + 1);
+EndIf;
+
+nIndex = 9;
+If(nIndex < nIndexOfExcludedDimension);
+  sDim9 = TabDim( pSourceCube, nIndex);
+  Else;
+  sDim9 = TabDim( pSourceCube, nIndex + 1);
+EndIf;
+
+nIndex = 10;
+If(nIndex < nIndexOfExcludedDimension);
+  sDim10 = TabDim( pSourceCube, nIndex);
+  Else;
+  sDim10 = TabDim( pSourceCube, nIndex + 1);
+EndIf;
+
+nIndex = 11;
+If(nIndex < nIndexOfExcludedDimension);
+  sDim11 = TabDim( pSourceCube, nIndex);
+  Else;
+  sDim11 = TabDim( pSourceCube, nIndex + 1);
+EndIf;
+
+nIndex = 12;
+If(nIndex < nIndexOfExcludedDimension);
+  sDim12 = TabDim( pSourceCube, nIndex);
+  Else;
+  sDim12 = TabDim( pSourceCube, nIndex + 1);
+EndIf;
+
+nIndex = 13;
+If(nIndex < nIndexOfExcludedDimension);
+  sDim13 = TabDim( pSourceCube, nIndex);
+  Else;
+  sDim13 = TabDim( pSourceCube, nIndex + 1);
+EndIf;
+
+nIndex = 14;
+If(nIndex < nIndexOfExcludedDimension);
+  sDim14 = TabDim( pSourceCube, nIndex);
+  Else;
+  sDim14 = TabDim( pSourceCube, nIndex + 1);
+EndIf;
+
+nIndex = 15;
+If(nIndex < nIndexOfExcludedDimension);
+  sDim15 = TabDim( pSourceCube, nIndex);
+  Else;
+  sDim15 = TabDim( pSourceCube, nIndex + 1);
+EndIf;
+
+nIndex = 16;
+If(nIndex < nIndexOfExcludedDimension);
+  sDim16 = TabDim( pSourceCube, nIndex);
+  Else;
+  sDim16 = TabDim( pSourceCube, nIndex + 1);
+EndIf;
+
+nIndex = 17;
+If(nIndex < nIndexOfExcludedDimension);
+  sDim17 = TabDim( pSourceCube, nIndex);
+  Else;
+  sDim17 = TabDim( pSourceCube, nIndex + 1);
+EndIf;
+
+nIndex = 18;
+If(nIndex < nIndexOfExcludedDimension);
+  sDim18 = TabDim( pSourceCube, nIndex);
+  Else;
+  sDim18 = TabDim( pSourceCube, nIndex + 1);
+EndIf;
+
+nIndex = 19;
+If(nIndex < nIndexOfExcludedDimension);
+  sDim19 = TabDim( pSourceCube, nIndex);
+  Else;
+  sDim19 = TabDim( pSourceCube, nIndex + 1);
+EndIf;
+
+nIndex = 20;
+If(nIndex < nIndexOfExcludedDimension);
+  sDim20 = TabDim( pSourceCube, nIndex);
+  Else;
+  sDim20 = TabDim( pSourceCube, nIndex + 1);
+EndIf;
+
+nIndex = 21;
+If(nIndex < nIndexOfExcludedDimension);
+  sDim21 = TabDim( pSourceCube, nIndex);
+  Else;
+  sDim21 = TabDim( pSourceCube, nIndex + 1);
+EndIf;
+
+nIndex = 22;
+If(nIndex < nIndexOfExcludedDimension);
+  sDim22 = TabDim( pSourceCube, nIndex);
+  Else;
+  sDim22 = TabDim( pSourceCube, nIndex + 1);
+EndIf;
+
+nIndex = 23;
+If(nIndex < nIndexOfExcludedDimension);
+  sDim23 = TabDim( pSourceCube, nIndex);
+  Else;
+  sDim23 = TabDim( pSourceCube, nIndex + 1);
+EndIf;
+
+nIndex = 24;
+If(nIndex < nIndexOfExcludedDimension);
+  sDim24 = TabDim( pSourceCube, nIndex);
+  Else;
+  sDim24 = TabDim( pSourceCube, nIndex + 1);
+EndIf;
+
+
+
+### Check to see if target cube exists ###
+
+# The pRecreateOrClearTarget determines whether to create a new target cube
+# or whether to just clear out the portion of the cube specified by the filter
+
+If( pDebug <= 1 );
+  # if cube exists and clear target is set to 1 then
+  If( CubeExists( pTargetCube ) = 1 & pRecreateOrClearTarget = 1);
+      # Create view of target and zero it out
+      ExecuteProcess('Bedrock.Cube.View.Create',
+        'pCube',pTargetCube,
+        'pView', sTargetView ,
+        'pFilter', pTargetCubeFilter,
+        'pSuppressZero',1,
+        'pSuppressConsol', 1,
+        'pSuppressRules', 0,
+        'pDimensionDelim', pDimensionDelim,
+        'pElementStartDelim', pElementStartDelim,
+        'pElementDelim', pElementDelim,
+        'pDebug', pDebug);
+    
+      ViewZeroOut(pTargetCube, sTargetView);    
+    
+  Else;
+  If( CubeExists( pTargetCube ) = 1);
+    CubeDestroy( pTargetCube );
+  EndIf;
+### Create target cube ###  
+    If( nDimensionCount = 2 );
+      CubeCreate( pTargetCube, sDim1, sDim2 );
+    ElseIf( nDimensionCount = 3 );
+      CubeCreate( pTargetCube, sDim1, sDim2, sDim3 );
+    ElseIf( nDimensionCount = 4 );
+      CubeCreate( pTargetCube, sDim1, sDim2, sDim3, sDim4 );
+    ElseIf( nDimensionCount = 5 );
+      CubeCreate( pTargetCube, sDim1, sDim2, sDim3, sDim4, sDim5 );
+    ElseIf( nDimensionCount = 6 );
+      CubeCreate( pTargetCube, sDim1, sDim2, sDim3, sDim4, sDim5, sDim6 );
+    ElseIf( nDimensionCount = 7 );
+      CubeCreate( pTargetCube, sDim1, sDim2, sDim3, sDim4, sDim5, sDim6, sDim7 );
+    ElseIf( nDimensionCount = 8 );
+      CubeCreate( pTargetCube, sDim1, sDim2, sDim3, sDim4, sDim5, sDim6, sDim7, sDim8 );
+    ElseIf( nDimensionCount = 9 );
+      CubeCreate( pTargetCube, sDim1, sDim2, sDim3, sDim4, sDim5, sDim6, sDim7, sDim8, sDim9 );
+    ElseIf( nDimensionCount = 10 );
+      CubeCreate( pTargetCube, sDim1, sDim2, sDim3, sDim4, sDim5, sDim6, sDim7, sDim8, sDim9, sDim10 );
+    ElseIf( nDimensionCount = 11 );
+      CubeCreate( pTargetCube, sDim1, sDim2, sDim3, sDim4, sDim5, sDim6, sDim7, sDim8, sDim9, sDim10, sDim11 );
+    ElseIf( nDimensionCount = 12 );
+      CubeCreate( pTargetCube, sDim1, sDim2, sDim3, sDim4, sDim5, sDim6, sDim7, sDim8, sDim9, sDim10, sDim11, sDim12 );
+    ElseIf( nDimensionCount = 13 );
+      CubeCreate( pTargetCube, sDim1, sDim2, sDim3, sDim4, sDim5, sDim6, sDim7, sDim8, sDim9, sDim10, sDim11, sDim12, sDim13 );
+    ElseIf( nDimensionCount = 14 );
+      CubeCreate( pTargetCube, sDim1, sDim2, sDim3, sDim4, sDim5, sDim6, sDim7, sDim8, sDim9, sDim10, sDim11, sDim12, sDim13, sDim14 );
+    ElseIf( nDimensionCount = 15 );
+      CubeCreate( pTargetCube, sDim1, sDim2, sDim3, sDim4, sDim5, sDim6, sDim7, sDim8, sDim9, sDim10, sDim11, sDim12, sDim13, sDim14, sDim15 );
+    ElseIf( nDimensionCount = 16 );
+      CubeCreate( pTargetCube, sDim1, sDim2, sDim3, sDim4, sDim5, sDim6, sDim7, sDim8, sDim9, sDim10, sDim11, sDim12, sDim13, sDim14, sDim15, sDim16 );
+    ElseIf( nDimensionCount = 17 );
+      CubeCreate( pTargetCube, sDim1, sDim2, sDim3, sDim4, sDim5, sDim6, sDim7, sDim8, sDim9, sDim10, sDim11, sDim12, sDim13, sDim14, sDim15, sDim16,
+                  sDim17 );
+    ElseIf( nDimensionCount = 18 );
+      CubeCreate( pTargetCube, sDim1, sDim2, sDim3, sDim4, sDim5, sDim6, sDim7, sDim8, sDim9, sDim10, sDim11, sDim12, sDim13, sDim14, sDim15, sDim16,
+                  sDim17, sDim18 );
+    ElseIf( nDimensionCount = 19 );
+      CubeCreate( pTargetCube, sDim1, sDim2, sDim3, sDim4, sDim5, sDim6, sDim7, sDim8, sDim9, sDim10, sDim11, sDim12, sDim13, sDim14, sDim15, sDim16,
+                  sDim17, sDim18, sDim19 );
+    ElseIf( nDimensionCount = 20 );
+      CubeCreate( pTargetCube, sDim1, sDim2, sDim3, sDim4, sDim5, sDim6, sDim7, sDim8, sDim9, sDim10, sDim11, sDim12, sDim13, sDim14, sDim15, sDim16,
+                  sDim17, sDim18, sDim19, sDim20 );
+    ElseIf( nDimensionCount = 21 );
+      CubeCreate( pTargetCube, sDim1, sDim2, sDim3, sDim4, sDim5, sDim6, sDim7, sDim8, sDim9, sDim10, sDim11, sDim12, sDim13, sDim14, sDim15, sDim16,
+                  sDim17, sDim18, sDim19, sDim20, sDim21 );
+    ElseIf( nDimensionCount = 22 );
+      CubeCreate( pTargetCube, sDim1, sDim2, sDim3, sDim4, sDim5, sDim6, sDim7, sDim8, sDim9, sDim10, sDim11, sDim12, sDim13, sDim14, sDim15, sDim16,
+                  sDim17, sDim18, sDim19, sDim20, sDim21, sDim22 );
+    ElseIf( nDimensionCount = 23 );
+      CubeCreate( pTargetCube, sDim1, sDim2, sDim3, sDim4, sDim5, sDim6, sDim7, sDim8, sDim9, sDim10, sDim11, sDim12, sDim13, sDim14, sDim15, sDim16,
+                  sDim17, sDim18, sDim19, sDim20, sDim21, sDim22, sDim23 );
+    ElseIf( nDimensionCount = 24 );
+      CubeCreate( pTargetCube, sDim1, sDim2, sDim3, sDim4, sDim5, sDim6, sDim7, sDim8, sDim9, sDim10, sDim11, sDim12, sDim13, sDim14, sDim15, sDim16,
+                  sDim17, sDim18, sDim19, sDim20, sDim21, sDim22, sDim23, sDim24 );
+    EndIf;
+  
+  EndIf;
+EndIf;
+
+### Create Source View
+# Note that it doesn't filter on the excluded dimension
+# a CellGetN will be used on the data tab
+# to get the value for the specified element of the excluded dimension
+# That way, consolidations can be skipped in the view
+# but, a consolidated element can be specified for the excluded dimension
+
+
+
+# Add the exluded dimension and source element to pFilter
+
+IF(LONG(TRIM(pFilter)) > 0);
+  pFilter = pFilter | sDelimDim | pDimExcluded | sElementStartDelim | pSourceElement;
+  Else;
+  pFilter = pDimExcluded | sElementStartDelim | pSourceElement;   
+EndIf;
+
+If( pDebug >= 1 );
+  AsciiOutput( sDebugFile, 'Filter for source view is ' | pFilter );
+EndIf;
+
+### Assign Datasource ###
+
+
+
+If( pIncludeData = 1 );
+
+  ExecuteProcess('Bedrock.Cube.View.Create',
+  'pCube',pSourceCube,
+  'pView', pView,
+  'pFilter', pFilter,
+  'pSuppressZero',1,
+  'pSuppressConsol', 1,
+  'pSuppressRules', 0,
+  'pDimensionDelim', pDimensionDelim,
+  'pElementStartDelim', pElementStartDelim,
+  'pElementDelim', pElementDelim,
+  'pDebug', pDebug);
+
+  ### Assign Datasource ###
+
+  DataSourceType = 'VIEW';
+  DatasourceNameForServer = pSourceCube;
+  DatasourceNameForClient = pSourceCube;
+  DatasourceCubeView = pView;
+  NValue = 0;
+  SValue = '0';
+  Value_is_String = 0;
+  Else;
+  DataSourceType = 'NULL';
+EndIf;
+
+
+### End Prolog ###
+
+
+#endregion
+#region Metadata
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+#endregion
+#region Data
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+######################################
+##~~  Copyright Cubewise P/L 2011 ~~##
+######################################
+
+
+### Check for error in prolog ###
+
+If( nErrors > 0 );
+  ProcessBreak;
+EndIf;
+
+
+### Check whether only cube structure being copied or also cube data ###
+
+If( pIncludeData = 0 );
+  ProcessBreak;
+EndIf;
+
+# The parameter pSourceElement can be a C level or an N level
+# If it's a C level, Bedrock.Cube.View.Create will add all its children to the subset on the excluded dimension
+# The data will then be aggregated using CellGetN and CellPutN
+
+### Renumber the dimensions
+
+nIndex = 1;
+If(nIndex <> nIndexOfExcludedDimension);
+  NewV1 = v1;
+  Else;
+  NewV1 = v2;
+EndIf;
+
+nIndex = 2;
+If(nIndex < nIndexOfExcludedDimension);
+  NewV2 = v2;
+  Else;
+  NewV2 = v3;
+EndIf;
+
+nIndex = 3;
+If(nIndex < nIndexOfExcludedDimension);
+  NewV3 = v3;
+  Else;
+  NewV3 = v4;
+EndIf;
+
+nIndex = 4;
+If(nIndex < nIndexOfExcludedDimension);
+  NewV4 = v4;
+  Else;
+  NewV4 = v5;
+EndIf;
+
+nIndex = 5;
+If(nIndex < nIndexOfExcludedDimension);
+  NewV5 = v5;
+  Else;
+  NewV5 = v6;
+EndIf;
+
+nIndex = 6;
+If(nIndex < nIndexOfExcludedDimension);
+  NewV6 = v6;
+  Else;
+  NewV6 = v7;
+EndIf;
+
+nIndex = 7;
+If(nIndex < nIndexOfExcludedDimension);
+  NewV7 = v7;
+  Else;
+  NewV7 = v8;
+EndIf;
+
+nIndex = 8;
+If(nIndex < nIndexOfExcludedDimension);
+  NewV8 = v8;
+  Else;
+  NewV8 = v9;
+EndIf;
+
+nIndex = 9;
+If(nIndex < nIndexOfExcludedDimension);
+  NewV9 = v9;
+  Else;
+  NewV9 = v10;
+EndIf;
+
+nIndex = 10;
+If(nIndex < nIndexOfExcludedDimension);
+  NewV10 = v10;
+  Else;
+  NewV10 = v11;
+EndIf;
+
+nIndex = 11;
+If(nIndex < nIndexOfExcludedDimension);
+  NewV11 = v11;
+  Else;
+  NewV11 = v12;
+EndIf;
+
+nIndex = 12;
+If(nIndex < nIndexOfExcludedDimension);
+  NewV12 = v12;
+  Else;
+  NewV12 = v13;
+EndIf;
+
+nIndex = 13;
+If(nIndex < nIndexOfExcludedDimension);
+  NewV13 = v13;
+  Else;
+  NewV13 = v14;
+EndIf;
+
+nIndex = 14;
+If(nIndex < nIndexOfExcludedDimension);
+  NewV14 = v14;
+  Else;
+  NewV14 = v15;
+EndIf;
+
+nIndex = 15;
+If(nIndex < nIndexOfExcludedDimension);
+  NewV15 = v15;
+  Else;
+  NewV15 = v16;
+EndIf;
+
+nIndex = 16;
+If(nIndex < nIndexOfExcludedDimension);
+  NewV16 = v16;
+  Else;
+  NewV16 = v17;
+EndIf;
+
+nIndex = 17;
+If(nIndex < nIndexOfExcludedDimension);
+  NewV17 = v17;
+  Else;
+  NewV17 = v18;
+EndIf;
+
+nIndex = 18;
+If(nIndex < nIndexOfExcludedDimension);
+  NewV18 = v18;
+  Else;
+  NewV18 = v19;
+EndIf;
+
+nIndex = 19;
+If(nIndex < nIndexOfExcludedDimension);
+  NewV19 = v19;
+  Else;
+  NewV19 = v20;
+EndIf;
+
+nIndex = 20;
+If(nIndex < nIndexOfExcludedDimension);
+  NewV20 = v20;
+  Else;
+  NewV20 = v21;
+EndIf;
+
+nIndex = 21;
+If(nIndex < nIndexOfExcludedDimension);
+  NewV21 = v21;
+  Else;
+  NewV21 = v22;
+EndIf;
+
+nIndex = 22;
+If(nIndex < nIndexOfExcludedDimension);
+  NewV22 = v22;
+  Else;
+  NewV22 = v23;
+EndIf;
+
+nIndex = 23;
+If(nIndex < nIndexOfExcludedDimension);
+  NewV23 = v23;
+  Else;
+  NewV23 = v24;
+EndIf;
+
+nIndex = 24;
+If(nIndex < nIndexOfExcludedDimension);
+  NewV24 = v24;
+  Else;
+  NewV24 = v25;
+EndIf;
+
+nIndex = 25;
+If(nIndex < nIndexOfExcludedDimension);
+  NewV25 = v25;
+  Else;
+  #NewV25 = v26;
+EndIf;
+
+
+
+# in order to reuse the code from the clone cube process
+# map the new varaibale names back to the original names
+
+v1 = NewV1;
+v2 = NewV2;
+v3 = NewV3;
+v4 = NewV4;
+v5 = NewV5;
+v6 = NewV6;
+v7 = NewV7;
+v8 = NewV8;
+v9 = NewV9;
+v10 = NewV10;
+v11 = NewV11;
+v12 = NewV12;
+v13 = NewV13;
+v14 = NewV14;
+v15 = NewV15;
+v16 = NewV16;
+v17 = NewV17;
+v18 = NewV18;
+v19 = NewV19;
+v20 = NewV20;
+v21 = NewV21;
+v22 = NewV22;
+v23 = NewV23;
+v24 = NewV24;
+v25 = NewV25;
+### Write data from source cube to target cube ###
+
+# Selects the correct CellPut formula depending upon the number of dimensions in the cube
+# and whether the value is numeric or string ( max 24 dims catered for in this code )
+# value type determined by element type of last dimension in cube
+
+If( pDebug <= 1 );
+
+  If( nDimensionCount = 2 );
+    sElType = DType( sDim2, v2 );
+    If( sElType @<> 'S' );
+      nOldValue = CellGetN(pTargetCube, v1, v2 );
+      CellPutN( Numbr( v3 ) + nOldValue, pTargetCube, v1, v2 );
+    Else;
+      CellPutS( v3, pTargetCube, v1, v2 );
+    EndIf;
+  ElseIf( nDimensionCount = 3 );
+    sElType = DType( sDim3, v3 );
+    If( sElType @<> 'S' );
+      nOldValue = CellGetN(pTargetCube, v1, v2, v3 );
+      CellPutN( Numbr( v4 ) + nOldValue, pTargetCube, v1, v2, v3 );
+    Else;
+      CellPutS( v4, pTargetCube, v1, v2, v3 );
+    EndIf;
+  ElseIf( nDimensionCount = 4 );
+    sElType = DType( sDim4, v4 );
+    If( sElType @<> 'S' );
+      nOldValue = CellGetN(pTargetCube, v1, v2, v3, v4 );
+      CellPutN( Numbr( v5 ) + nOldValue, pTargetCube, v1, v2, v3, v4 );
+    Else;
+      CellPutS( v5, pTargetCube, v1, v2, v3, v4 );
+    EndIf;
+  ElseIf( nDimensionCount = 5 );
+    sElType = DType( sDim5, v5 );
+    If( sElType @<> 'S' );
+      nOldValue = CellGetN(pTargetCube, v1, v2, v3, v4, v5 );
+      CellPutN( Numbr( v6 ) + nOldValue, pTargetCube, v1, v2, v3, v4, v5 );
+    Else;
+      CellPutS( v6, pTargetCube, v1, v2, v3, v4, v5 );
+    EndIf;
+  ElseIf( nDimensionCount = 6 );
+    sElType = DType( sDim6, v6 );
+    If( sElType @<> 'S' );
+      nOldValue = CellGetN(pTargetCube, v1, v2, v3, v4, v5, v6 );
+      CellPutN( Numbr( v7 ) + nOldValue, pTargetCube, v1, v2, v3, v4, v5, v6 );
+    Else;
+      CellPutS( v7, pTargetCube, v1, v2, v3, v4, v5, v6 );
+    EndIf;
+  ElseIf( nDimensionCount = 7 );
+    sElType = DType( sDim7, v7 );
+    If( sElType @<> 'S' );
+      nOldValue = CellGetN(pTargetCube, v1, v2, v3, v4, v5, v6, v7 );
+      CellPutN( Numbr( v8 ) + nOldValue, pTargetCube, v1, v2, v3, v4, v5, v6, v7 );
+    Else;
+      CellPutS( v8, pTargetCube, v1, v2, v3, v4, v5, v6, v7 );
+    EndIf;
+  ElseIf( nDimensionCount = 8 );
+    sElType = DType( sDim8, v8 );
+    If( sElType @<> 'S' );
+      nOldValue = CellGetN(pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8 );
+      CellPutN( Numbr( v9 ) + nOldValue, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8 );
+    Else;
+      CellPutS( v9, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8 );
+    EndIf;
+  ElseIf( nDimensionCount = 9 );
+    sElType = DType( sDim9, v9 );
+    If( sElType @<> 'S' );
+      nOldValue = CellGetN(pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9 );
+      CellPutN( Numbr( v10 ) + nOldValue, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9 );
+    Else;
+      CellPutS( v10, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9 );
+    EndIf;
+  ElseIf( nDimensionCount = 10 );
+    sElType = DType( sDim10, v10 );
+    If( sElType @<> 'S' );
+      nOldValue = CellGetN(pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 );
+      CellPutN( Numbr( v11 ) + nOldValue, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 );
+    Else;
+      CellPutS( v11, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 );
+    EndIf;
+  ElseIf( nDimensionCount = 11 );
+    sElType = DType( sDim11, v11 );
+    If( sElType @<> 'S' );
+      nOldValue = CellGetN(pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 );
+      CellPutN( Numbr( v12 ) + nOldValue, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 );
+    Else;
+      CellPutS( v12, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 );
+    EndIf;
+  ElseIf( nDimensionCount = 12 );
+    sElType = DType( sDim12, v12 );
+    If( sElType @<> 'S' );
+      nOldValue = CellGetN(pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12 );
+      CellPutN( Numbr( v13 ) + nOldValue, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12 );
+    Else;
+      CellPutS( v13, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12 );
+    EndIf;
+  ElseIf( nDimensionCount = 13 );
+    sElType = DType( sDim13, v13 );
+    If( sElType @<> 'S' );
+      nOldValue = CellGetN(pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13 );
+      CellPutN( Numbr( v14 ) + nOldValue, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13 );
+    Else;
+      CellPutS( v14, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13 );
+    EndIf;
+  ElseIf( nDimensionCount = 14 );
+    sElType = DType( sDim14, v14 );
+    If( sElType @<> 'S' );
+      nOldValue = CellGetN(pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14 );
+      CellPutN( Numbr( v15 ) + nOldValue, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14 );
+    Else;
+      CellPutS( v15, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14 );
+    EndIf;
+  ElseIf( nDimensionCount = 15 );
+    sElType = DType( sDim15, v15 );
+    If( sElType @<> 'S' );
+      nOldValue = CellGetN(pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15 );
+      CellPutN( Numbr( v16 ) + nOldValue, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15 );
+    Else;
+      CellPutS( v16, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15 );
+    EndIf;
+  ElseIf( nDimensionCount = 16 );
+    sElType = DType( sDim16, v16 );
+    If( sElType @<> 'S' );
+      nOldValue = CellGetN(pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16 );
+      CellPutN( Numbr( v17 ) + nOldValue, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16 );
+    Else;
+      CellPutS( v17, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16 );
+    EndIf;
+  ElseIf( nDimensionCount = 17 );
+    sElType = DType( sDim17, v17 );
+    If( sElType @<> 'S' );
+      nOldValue = CellGetN(pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17 );
+      CellPutN( Numbr( v18 ) + nOldValue, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17 );
+    Else;
+      CellPutS( v18, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17 );
+    EndIf;
+  ElseIf( nDimensionCount = 18 );
+     sElType = DType( sDim18, v18 );
+    If( sElType @<> 'S' );
+      nOldValue = CellGetN(pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18 );
+      CellPutN( Numbr( v19 ) + nOldValue, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18 );
+    Else;
+      CellPutS( v19, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18 );
+    EndIf;
+  ElseIf( nDimensionCount = 19 );
+     sElType = DType( sDim19, v19 );
+    If( sElType @<> 'S' );
+      nOldValue = CellGetN(pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19 );
+      CellPutN( Numbr( v20 ) + nOldValue, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19 );
+    Else;
+      CellPutS( v20, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19 );
+    EndIf;
+  ElseIf( nDimensionCount = 20 );
+     sElType = DType( sDim20, v20 );
+    If( sElType @<> 'S' );
+      nOldValue = CellGetN(pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20 );
+      CellPutN( Numbr( v21 ) + nOldValue, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20 );
+    Else;
+      CellPutS( v21, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20 );
+    EndIf;
+  ElseIf( nDimensionCount = 21 );
+     sElType = DType( sDim21, v21 );
+    If( sElType @<> 'S' );
+      nOldValue = CellGetN(pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21 );
+      CellPutN( Numbr( v22 ) + nOldValue, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21 );
+    Else;
+      CellPutS( v22, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21 );
+    EndIf;
+  ElseIf( nDimensionCount = 22 );
+     sElType = DType( sDim22, v22 );
+    If( sElType @<> 'S' );
+      nOldValue = CellGetN(pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22 );
+      CellPutN( Numbr( v23 ) + nOldValue, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22 );
+    Else;
+      CellPutS( v23, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22 );
+    EndIf;
+  ElseIf( nDimensionCount = 23 );
+     sElType = DType( sDim23, v23 );
+    If( sElType @<> 'S' );
+      nOldValue = CellGetN(pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23 );
+      CellPutN( Numbr( v24 ) + nOldValue, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22,
+      v23 );
+    Else;
+      CellPutS( v24, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23 );
+    EndIf;
+  ElseIf( nDimensionCount = 24 );
+     sElType = DType( sDim24, v24 );
+    If( sElType @<> 'S' );
+      nOldValue = CellGetN(pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24 );
+      CellPutN( Numbr( v25 ) + nOldValue, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22,
+      v23, v24 );
+    Else;
+      CellPutS( v25, pTargetCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24 );
+    EndIf;
+  EndIf;
+
+EndIf;
+
+
+### End Data ###
+#endregion
+#region Epilog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+######################################
+##~~  Copyright Cubewise P/L 2010 ~~##
+######################################
+
+
+### Initialise Debug ###
+
+If( pDebug >= 1 );
+
+  # Set debug file name
+  sDebugFile = cDebugFile | 'Epilog.debug';
+
+EndIf;
+
+
+### Attach rules to cloned cube ###
+
+If( nErrors = 0 & pIncludeRules = 1 );
+  sRuleFile = pSourceCube | '.rux';
+  If( FileExists( sRuleFile ) = 1 );
+    If( pDebug >= 1 );
+      AsciiOutput( sDebugFile, 'Rules file found' );
+    EndIf;
+    If( pDebug <= 1 );
+      RuleLoadFromFile( pTargetCube, sRuleFile );
+    EndIf;
+  Else;
+    If( pDebug >= 1 );
+      AsciiOutput( sDebugFile, 'Cannot attach rule.  No rules exist in source cube: ' | pSourceCube );
+    EndIf;
+  EndIf;
+EndIf;
+
+
+ ### Destroy temporary views and subsets ###
+
+pDeleteViewsAndSubsets = 1;
+
+  # Delete source view
+  ExecuteProcess('Bedrock.Cube.View.DeleteWithSubsets',
+    'pCube', pSourceCube,
+    'pView', pView,
+    'pSubset',pView,
+    'pMode', pDeleteViewsAndSubsets,
+    'pDebug', pDebug);
+
+  # Delete target view
+  ExecuteProcess('Bedrock.Cube.View.DeleteWithSubsets',
+    'pCube', pTargetCube,
+    'pView', sTargetView,
+    'pSubset', sTargetView,
+    'pMode', pDeleteViewsAndSubsets,
+    'pDebug', pDebug);
+
+### Finalise Debug ###
+
+If( pDebug >= 1 );
+
+  # Log errors
+  If( nErrors <> 0 );
+    AsciiOutput( sDebugFile, 'Errors Occurred' );
+  EndIf;
+
+  # Log finish time
+  AsciiOutput( sDebugFile, 'Process Finished: ' | TimSt( Now, '\d-\m-\Y \h:\i:\s' ) );
+
+EndIf;
+
+
+### If errors occurred terminate process with a major error status ###
+
+If( nErrors <> 0 );
+  ProcessQuit;
+EndIf;
+
+
+### End Epilog ###
+#endregion

@@ -1,0 +1,118 @@
+{
+	"@type":"NativeView",
+	"Name":"Cub.CH Reporting.Clear",
+	"Columns":
+	[
+		{
+			"Subset":
+			{
+				"@id":"Dimensions('CH Measure')/Hierarchies('CH Measure')/Subsets('Cub.CH Reporting.Clear')"
+			}
+		}
+	],
+	"Rows":
+	[
+		{
+			"Subset":
+			{
+				"Hierarchy":
+				{
+					"@id":"Dimensions('CH Purpose Code')/Hierarchies('CH Purpose Code')"
+				},
+				"Expression":"TM1SubsetAll([CH Purpose Code])"
+			}
+		}
+	],
+	"Titles":
+	[
+		{
+			"Subset":
+			{
+				"@id":"Dimensions('CH Version')/Hierarchies('CH Version')/Subsets('Cub.CH Reporting.Clear')"
+			},
+			"Selected":
+			{
+				"@id":"Dimensions('CH Version')/Hierarchies('CH Version')/Elements('FQ1')"
+			}
+		},
+		{
+			"Subset":
+			{
+				"Hierarchy":
+				{
+					"@id":"Dimensions('CH Year')/Hierarchies('CH Year')"
+				},
+				"Expression":"TM1SubsetAll([CH Year])"
+			},
+			"Selected":
+			{
+				"@id":"Dimensions('CH Year')/Hierarchies('CH Year')/Elements('2021')"
+			}
+		},
+		{
+			"Subset":
+			{
+				"Hierarchy":
+				{
+					"@id":"Dimensions('CH Month')/Hierarchies('CH Month')"
+				},
+				"Expression":"TM1SubsetAll([CH Month])"
+			},
+			"Selected":
+			{
+				"@id":"Dimensions('CH Month')/Hierarchies('CH Month')/Elements('Jan YTD')"
+			}
+		},
+		{
+			"Subset":
+			{
+				"Hierarchy":
+				{
+					"@id":"Dimensions('CH Currency')/Hierarchies('CH Currency')"
+				},
+				"Expression":"TM1SubsetAll([CH Currency])"
+			},
+			"Selected":
+			{
+				"@id":"Dimensions('CH Currency')/Hierarchies('CH Currency')/Elements('Local')"
+			}
+		},
+		{
+			"Subset":
+			{
+				"@id":"Dimensions('CH Company')/Hierarchies('CH Company')/Subsets('Cub.CH Reporting.Clear')"
+			},
+			"Selected":
+			{
+				"@id":"Dimensions('CH Company')/Hierarchies('CH Company')/Elements('0009')"
+			}
+		},
+		{
+			"Subset":
+			{
+				"@id":"Dimensions('CH Cost Centre')/Hierarchies('CH Cost Centre')/Subsets('Cub.CH Reporting.Clear')"
+			},
+			"Selected":
+			{
+				"@id":"Dimensions('CH Cost Centre')/Hierarchies('CH Cost Centre')/Elements('CC 02/0001')"
+			}
+		},
+		{
+			"Subset":
+			{
+				"Hierarchy":
+				{
+					"@id":"Dimensions('CH SCOA')/Hierarchies('CH SCOA')"
+				},
+				"Expression":"TM1SubsetAll([CH SCOA])"
+			},
+			"Selected":
+			{
+				"@id":"Dimensions('CH SCOA')/Hierarchies('CH SCOA')/Elements('40000100- Gross Sales - 3P')"
+			}
+		}
+	],
+	"SuppressEmptyColumns":false,
+	"SuppressEmptyRows":false,
+	"FormatString":"0.00"
+}

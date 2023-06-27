@@ -1,0 +1,44 @@
+{
+	"@type":"Process",
+	"Name":"Cub.Wholesale.Prepopulate Budgets",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Cub.Wholesale.Prepopulate Budgets.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pVersionFrom",
+			"Prompt":"Select Version From:",
+			"Value":"Actual",
+			"Type":"String"
+		},
+		{
+			"Name":"pYearFrom",
+			"Prompt":"Select Year From:",
+			"Value":"2021/22",
+			"Type":"String"
+		},
+		{
+			"Name":"pVersionTo",
+			"Prompt":"Select Version To:",
+			"Value":"Budget",
+			"Type":"String"
+		},
+		{
+			"Name":"pYearTo",
+			"Prompt":"Select Year To:",
+			"Value":"2022/23",
+			"Type":"String"
+		},
+		{
+			"Name":"pUplift",
+			"Prompt":"% Uplift? (Optional)",
+			"Value":0.0500000000000000028,
+			"Type":"Numeric"
+		}
+	],
+	"Variables":[]
+}

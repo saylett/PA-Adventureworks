@@ -1,0 +1,88 @@
+#region Prolog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+# Use this process to reset cube data to original values
+
+#Currency Exchange Rates
+#Employee
+#General Ledger
+#Planning Assumptions
+#Product
+#Product Type by Region
+#Regio nal Assumptions
+#Retail
+#System Info
+#Time
+#Wholesale
+
+# Before importing the data, restore the dimensions to their original state
+ExecuteProcess('Dim.RestoreOriginals');
+
+cImportPath = 'C:\Cubewise University\Export\';
+cFileNameSuffix = '.All.Export.csv';
+
+sCube = 'Currency Exchange Rates';
+sFile = sCube | cFileNameSuffix;
+CubeClearData(sCube);
+ExecuteProcess('Bedrock.Cube.Data.ImportFromFile','pSourceDir',cImportPath,'pSourceFile',sFile,'pTargetCube',sCube,'pTitleRows',2,'pDelimiter',',','pQuote','"','pDebug',1);
+
+sCube = 'Employee';
+sFile = sCube | cFileNameSuffix;
+CubeClearData(sCube);
+ExecuteProcess('Bedrock.Cube.Data.ImportFromFile','pSourceDir',cImportPath,'pSourceFile',sFile,'pTargetCube',sCube,'pTitleRows',2,'pDelimiter',',','pQuote','"','pDebug',1);
+
+sCube = 'General Ledger';
+sFile = sCube | cFileNameSuffix;
+CubeClearData(sCube);
+ExecuteProcess('Bedrock.Cube.Data.ImportFromFile','pSourceDir',cImportPath,'pSourceFile',sFile,'pTargetCube',sCube,'pTitleRows',2,'pDelimiter',',','pQuote','"','pDebug',1);
+
+sCube = 'Planning Assumptions';
+sFile = sCube | cFileNameSuffix;
+CubeClearData(sCube);
+ExecuteProcess('Bedrock.Cube.Data.ImportFromFile','pSourceDir',cImportPath,'pSourceFile',sFile,'pTargetCube',sCube,'pTitleRows',2,'pDelimiter',',','pQuote','"','pDebug',1);
+
+sCube = 'Product';
+sFile = sCube | cFileNameSuffix;
+CubeClearData(sCube);
+ExecuteProcess('Bedrock.Cube.Data.ImportFromFile','pSourceDir',cImportPath,'pSourceFile',sFile,'pTargetCube',sCube,'pTitleRows',2,'pDelimiter',',','pQuote','"','pDebug',1);
+
+sCube = 'Product Type by Region';
+sFile = sCube | cFileNameSuffix;
+CubeClearData(sCube);
+ExecuteProcess('Bedrock.Cube.Data.ImportFromFile','pSourceDir',cImportPath,'pSourceFile',sFile,'pTargetCube',sCube,'pTitleRows',2,'pDelimiter',',','pQuote','"','pDebug',1);
+
+sCube = 'Regional Assumptions';
+sFile = sCube | cFileNameSuffix;
+CubeClearData(sCube);
+ExecuteProcess('Bedrock.Cube.Data.ImportFromFile','pSourceDir',cImportPath,'pSourceFile',sFile,'pTargetCube',sCube,'pTitleRows',2,'pDelimiter',',','pQuote','"','pDebug',1);
+
+sCube = 'Retail';
+sFile = sCube | cFileNameSuffix;
+CubeClearData(sCube);
+ExecuteProcess('Bedrock.Cube.Data.ImportFromFile','pSourceDir',cImportPath,'pSourceFile',sFile,'pTargetCube',sCube,'pTitleRows',2,'pDelimiter',',','pQuote','"','pDebug',1);
+
+sCube = 'Wholesale';
+sFile = sCube | cFileNameSuffix;
+CubeClearData(sCube);
+ExecuteProcess('Bedrock.Cube.Data.ImportFromFile','pSourceDir',cImportPath,'pSourceFile',sFile,'pTargetCube',sCube,'pTitleRows',2,'pDelimiter',',','pQuote','"','pDebug',1);
+#endregion
+#region Metadata
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+#endregion
+#region Data
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+#endregion
+#region Epilog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+#endregion

@@ -1,0 +1,13 @@
+{
+	"@type":"Dimension",
+	"Name":"Planning Measure",
+	"AllLeavesHierarchyName":"",
+	"DefaultHierarchy":
+	{
+		"@id":"Dimensions('Planning Measure')/Hierarchies('Planning Measure')"
+	},
+	"Hierarchies@Code.links":
+	[
+		"Planning Measure.hierarchies/Planning Measure.json"
+	]
+}

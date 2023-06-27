@@ -1,0 +1,92 @@
+{
+	"@type":"Hierarchy",
+	"Name":"System Info Parameter",
+	"Elements":
+	[
+		{
+			"Name":"Current Date",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Calender Year",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Calender Month",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Calender Day",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Calendar Index",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Financial Year",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Financial Month",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Financial Index",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Server Time",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Windows Server Name",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"TM1 Server Name",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Enviroment",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Data Directory",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Logging Directory",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Export Directory",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Import Directory",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Budget Base Year",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Budget Base Version",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Budget Year",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Budget Version",
+			"Type":"Numeric"
+		}
+	],
+	"Subsets@Code.links":
+	[
+		"System Info Parameter.subsets/Default.json",
+		"System Info Parameter.subsets/}Bedrock.Dim.Clone.json"
+	]
+}

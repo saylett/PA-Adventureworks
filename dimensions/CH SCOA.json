@@ -1,0 +1,13 @@
+{
+	"@type":"Dimension",
+	"Name":"CH SCOA",
+	"AllLeavesHierarchyName":"",
+	"DefaultHierarchy":
+	{
+		"@id":"Dimensions('CH SCOA')/Hierarchies('CH SCOA')"
+	},
+	"Hierarchies@Code.links":
+	[
+		"CH SCOA.hierarchies/CH SCOA.json"
+	]
+}

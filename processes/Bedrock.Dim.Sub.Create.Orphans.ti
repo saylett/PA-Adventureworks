@@ -1,0 +1,172 @@
+#region Prolog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+######################################
+##~~  Copyright Cubewise P/L 2010 ~~##
+######################################
+
+# This process will Create a subsets for "orphan" elements
+# that is Colsols without children and Ns without parents
+
+
+### Constants ###
+
+cProcess = 'Bedrock.Dim.Sub.Create.Orphans';
+cTimeStamp = TimSt( Now, '\Y\m\d\h\i\s' );
+cDebugFile = GetProcessErrorFileDirectory | cProcess | '.' | cTimeStamp | '.';
+cSubsetOrphanC = 'Orphan C Elements (no children)';
+cSubsetOrphanN = 'Orphan N Elements (no parents)';
+
+
+### Initialise Debug ###
+
+If( pDebug >= 1 );
+
+  # Set debug file name
+  sDebugFile = cDebugFile | 'Prolog.debug';
+
+  # Log start time
+  AsciiOutput( sDebugFile, 'Process Started: ' | TimSt( Now, '\d-\m-\Y \h:\i:\s' ) );
+
+  # Log parameters
+  AsciiOutput( sDebugFile, 'Parameters: pDimension : ' | pDimension );
+
+  # Log subset names
+  AsciiOutput( sDebugFile, 'Orphan subsets for dimension        :', pDimension );
+  AsciiOutput( sDebugFile, 'Subset for consols without children :', cSubsetOrphanC );
+  AsciiOutput( sDebugFile, 'subset for level 0 without parents  :', cSubsetOrphanN );
+
+EndIf;
+
+
+### Validate Parameters ###
+
+nErrors = 0;
+
+# Validate dimension
+If( Trim( pDimension ) @= '' );
+  nErrors = 1;
+  sMessage = 'No dimension specified';
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  ItemReject( sMessage );
+EndIf;
+If( DimensionExists( pDimension ) = 0 );
+  nErrors = 1;
+  sMessage = 'Invalid dimension: ' | pDimension;
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  ItemReject( sMessage );
+EndIf;
+
+
+### Create Subsets ###
+
+If( pDebug <= 1 );
+  If( SubsetExists( pDimension, cSubsetOrphanC ) = 1 );
+    SubsetDeleteAllElements( pDimension, cSubsetOrphanC );
+  Else;
+    SubsetCreate( pDimension, cSubsetOrphanC );
+  EndIf;
+  If( SubsetExists( pDimension, cSubsetOrphanN ) = 1 );
+    SubsetDeleteAllElements( pDimension, cSubsetOrphanN );
+  Else;
+    SubsetCreate( pDimension, cSubsetOrphanN );
+  EndIf;
+EndIf;
+
+
+### Populate subsets ###
+
+nElementCount = DimSiz( pDimension );
+nElementIndex = 1;
+nLeafCount = 0;
+nConsolCount = 0;
+While( nElementIndex <= nElementCount );
+  sElement = DimNm( pDimension, nElementIndex );
+  If( DType( pDimension, sElement ) @= 'N' & ElPar( pDimension, sElement, 1 ) @= '' );
+    # N element with no parents
+    nLeafCount = nLeafCount + 1;
+    If( pDebug <= 1 );
+      SubsetElementInsert( pDimension, cSubsetOrphanN, sElement, nLeafCount );
+    EndIf;
+  EndIf;
+  If( DType( pDimension, sElement ) @= 'C' & ElCompN( pDimension, sElement ) = 0 );
+    # C element with no children
+    nConsolCount = nConsolCount + 1;
+    SubsetElementInsert( pDimension, cSubsetOrphanC, sElement, nConsolCount );
+  EndIf;
+  nElementIndex = nElementIndex + 1;
+End;
+
+# Output element counts to debug file
+If( pDebug >= 1 );
+  AsciiOutput( sDebugFile, cSubsetOrphanC | ' Size: ', NumberToString( nConsolCount ) );
+  AsciiOutput( sDebugFile, cSubsetOrphanN | ' Size: ', NumberToString( nLeafCount ) );
+EndIf;
+
+
+### Tidy up ###
+
+# If no orphans then destroy empty subsets, in debug leave empty subsets
+If( pDebug <= 1 );
+  If( SubsetGetSize( pDimension, cSubsetOrphanN ) = 0 );
+    SubsetDestroy( pDimension, cSubsetOrphanN );
+  EndIf;
+  If( SubsetGetSize( pDimension, cSubsetOrphanC ) = 0 );
+    SubsetDestroy( pDimension, cSubsetOrphanC );
+  EndIf;
+EndIf;
+
+
+### End Prolog ###
+#endregion
+#region Metadata
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Data
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Epilog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+######################################
+##~~  Copyright Cubewise P/L 2010 ~~##
+######################################
+
+
+### Initialise Debug ###
+
+If( pDebug >= 1 );
+
+  # Set debug file name
+  sDebugFile = cDebugFile | 'Epilog.debug';
+
+  # Log errors
+  If( nErrors <> 0 );
+    AsciiOutput( sDebugFile, 'Errors Occurred' );
+  EndIf;
+
+  # Log finish time
+  AsciiOutput( sDebugFile, 'Process Finished: ' | TimSt( Now, '\d-\m-\Y \h:\i:\s' ) );
+
+EndIf;
+
+
+### If errors occurred terminate process with a major error status ###
+
+If( nErrors <> 0 );
+  ProcessQuit;
+EndIf;
+
+
+### End Epilog ###
+#endregion

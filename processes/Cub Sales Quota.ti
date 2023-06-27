@@ -1,0 +1,34 @@
+#region Prolog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+vCubeName = 'Sales Quota';
+
+ExecuteProcess('Bedrock.Cube.Data.ZeroOut', 'pCube',vCubeName, 'PDelimDim', '&', 'PDelimElem','+','PFilter','','pDebug',0);
+#ExecuteProcess('Bedrock.Cube.Data.ZeroOut', 'pCube',vCubeName, 'PDelimDim', '&', 'PDelimElem','+','PFilter','year+2005&Employee+jillian0','pDebug',0)
+;
+#endregion
+#region Metadata
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Data
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+vYear = subst(DateKey,1,4);
+vPeriod = subst(DateKey,5,2);
+
+CellPutN(SalesAmountQuota, vCubeName, 'Actual', vYear, vPeriod, EmployeeKey, 'Amount');
+
+
+
+#endregion
+#region Epilog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion

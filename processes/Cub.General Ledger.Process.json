@@ -1,0 +1,12 @@
+{
+	"@type":"Process",
+	"Name":"Cub.General Ledger.Process",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Cub.General Ledger.Process.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":[],
+	"Variables":[]
+}

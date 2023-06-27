@@ -1,0 +1,57 @@
+#region Prolog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+cSourceDimension = 'Region with Local Descriptions';
+cTargetDimension = 'Region';
+
+IF(pRegion @= 'Asia' % pRegion @= 'Europe' % pRegion @= 'Oceania' % pRegion @= 'World');
+# parameter OK
+  Else;
+  ProcessBreak;
+EndIf;
+#endregion
+#region Metadata
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Data
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+sDesc = AttrS(cSourceDimension, vRegion, pRegion);
+
+AttrPutS(sDesc, cTargetDimension, vRegion, 'Description');
+
+# Update currency
+sAttribute = 'Currency';
+sRegionalisedAttribute = pRegion | sAttribute;
+sStringAttribute =  AttrS(cSourceDimension, vRegion, sRegionalisedAttribute);
+AttrPutS(sStringAttribute, cTargetDimension, vRegion, sAttribute);
+
+## Update Company Tax Rate
+#sAttribute = 'Company Tax Rate';
+#sRegionalisedAttribute = pRegion | sAttribute;
+#nNumericAttribute =  AttrN(cSourceDimension, vRegion, sRegionalisedAttribute);
+#AttrPutN(nNumericAttribute, cTargetDimension, vRegion, sAttribute);
+#
+## Update Payroll Tax Rate
+#sAttribute = 'Payroll Tax Rate';
+#sRegionalisedAttribute = pRegion | sAttribute;
+#nNumericAttribute =  AttrN(cSourceDimension, vRegion, sRegionalisedAttribute);
+#AttrPutN(nNumericAttribute, cTargetDimension, vRegion, sAttribute);
+#
+## Update Super Rate
+#sAttribute = 'Super Rate';
+#sRegionalisedAttribute = pRegion | sAttribute;
+#nNumericAttribute =  AttrN(cSourceDimension, vRegion, sRegionalisedAttribute);
+#AttrPutN(nNumericAttribute, cTargetDimension, vRegion, sAttribute);
+#endregion
+#region Epilog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion

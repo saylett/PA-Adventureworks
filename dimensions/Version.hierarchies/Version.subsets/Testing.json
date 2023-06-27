@@ -1,0 +1,10 @@
+{
+	"@type":"Subset",
+	"Name":"Testing",
+	"Elements":
+	[
+		{
+			"@id":"Dimensions('Version')/Hierarchies('Version')/Elements('1')"
+		}
+	]
+}

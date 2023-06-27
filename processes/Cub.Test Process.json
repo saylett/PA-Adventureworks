@@ -1,0 +1,12 @@
+{
+	"@type":"Process",
+	"Name":"Cub.Test Process",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Cub.Test Process.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":[],
+	"Variables":[]
+}

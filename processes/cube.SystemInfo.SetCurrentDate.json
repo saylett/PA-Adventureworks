@@ -1,0 +1,13 @@
+{
+	"@type":"Process",
+	"Name":"cube.SystemInfo.SetCurrentDate",
+	"HasSecurityAccess":true,
+	"Code@Code.link":"cube.SystemInfo.SetCurrentDate.ti",
+	"UIData":"CubeAction=1511€DataAction=1503€CubeLogChanges=0€",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":[],
+	"Variables":[]
+}

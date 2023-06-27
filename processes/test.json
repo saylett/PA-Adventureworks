@@ -1,0 +1,12 @@
+{
+	"@type":"Process",
+	"Name":"test",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"test.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":[],
+	"Variables":[]
+}

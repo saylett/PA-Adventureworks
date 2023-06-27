@@ -1,0 +1,13 @@
+{
+	"@type":"Dimension",
+	"Name":"movie",
+	"AllLeavesHierarchyName":"",
+	"DefaultHierarchy":
+	{
+		"@id":"Dimensions('movie')/Hierarchies('movie')"
+	},
+	"Hierarchies@Code.links":
+	[
+		"movie.hierarchies/movie.json"
+	]
+}

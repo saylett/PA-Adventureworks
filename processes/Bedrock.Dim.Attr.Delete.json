@@ -1,0 +1,33 @@
+{
+	"@type":"Process",
+	"Name":"Bedrock.Dim.Attr.Delete",
+	"HasSecurityAccess":true,
+	"Code@Code.link":"Bedrock.Dim.Attr.Delete.ti",
+	"UIData":"CubeAction=1511€DataAction=1503€CubeLogChanges=0€",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pDimension",
+			"Prompt":"Dimension Name",
+			"Value":"",
+			"Type":"String"
+		},
+		{
+			"Name":"pAttribute",
+			"Prompt":"Attribute Name",
+			"Value":"",
+			"Type":"String"
+		},
+		{
+			"Name":"pDebug",
+			"Prompt":"Debug Mode",
+			"Value":0,
+			"Type":"Numeric"
+		}
+	],
+	"Variables":[]
+}

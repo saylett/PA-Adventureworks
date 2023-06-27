@@ -1,0 +1,374 @@
+{
+	"@type":"Hierarchy",
+	"Name":"CH Purpose Code",
+	"Elements":
+	[
+		{
+			"Name":"All Purpose Codes",
+			"Type":"Consolidated"
+		},
+		{
+			"Name":"External Recruitment Agency Fees",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Memberships & Job Boards",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Candidate Assessments",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Academic partnerships",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Recruitment - Other",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Learning & Development (Entity Specific)",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Talent Development",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Onboarding",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"HR Operations",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Organisation Development",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Internal Communications",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"People Engagement",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Comp/ Reward Programmes",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Pension & Benefits",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"International Mobility",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"People Solutions",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Leadership Development",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Diversity & Inclusion",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"HR Community & Development",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Social Commitment",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Living Wage",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"SPECIFIC TO SOME MARKETS",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Labour Relations",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Learning & Development (Global Corporate)",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Executive Compensation Programme",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Health, Safety & Workplace",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Medical Expenses",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Legal & Compliance",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Payroll",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Travel and Expenses",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Other",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Total Travel Expenses",
+			"Type":"Consolidated"
+		},
+		{
+			"Name":"Total Consulting",
+			"Type":"Consolidated"
+		},
+		{
+			"Name":"Total Recruitment",
+			"Type":"Consolidated"
+		}
+	],
+	"Edges":
+	[
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"External Recruitment Agency Fees",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"Memberships & Job Boards",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"Candidate Assessments",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"Academic partnerships",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"Recruitment - Other",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"Learning & Development (Entity Specific)",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"Talent Development",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"Onboarding",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"HR Operations",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"Organisation Development",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"Internal Communications",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"People Engagement",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"Comp/ Reward Programmes",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"Pension & Benefits",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"International Mobility",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"People Solutions",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"Leadership Development",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"Diversity & Inclusion",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"HR Community & Development",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"Social Commitment",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"Living Wage",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"SPECIFIC TO SOME MARKETS",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"Labour Relations",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"Learning & Development (Global Corporate)",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"Executive Compensation Programme",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"Health, Safety & Workplace",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"Medical Expenses",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"Legal & Compliance",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"Payroll",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"Travel and Expenses",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Purpose Codes",
+			"ComponentName":"Other",
+			"Weight":1
+		},
+		{
+			"ParentName":"Total Travel Expenses",
+			"ComponentName":"Travel and Expenses",
+			"Weight":1
+		},
+		{
+			"ParentName":"Total Consulting",
+			"ComponentName":"Learning & Development (Entity Specific)",
+			"Weight":1
+		},
+		{
+			"ParentName":"Total Consulting",
+			"ComponentName":"Talent Development",
+			"Weight":1
+		},
+		{
+			"ParentName":"Total Consulting",
+			"ComponentName":"Onboarding",
+			"Weight":1
+		},
+		{
+			"ParentName":"Total Consulting",
+			"ComponentName":"HR Operations",
+			"Weight":1
+		},
+		{
+			"ParentName":"Total Consulting",
+			"ComponentName":"Organisation Development",
+			"Weight":1
+		},
+		{
+			"ParentName":"Total Consulting",
+			"ComponentName":"Internal Communications",
+			"Weight":1
+		},
+		{
+			"ParentName":"Total Consulting",
+			"ComponentName":"External Recruitment Agency Fees",
+			"Weight":1
+		},
+		{
+			"ParentName":"Total Recruitment",
+			"ComponentName":"External Recruitment Agency Fees",
+			"Weight":1
+		},
+		{
+			"ParentName":"Total Recruitment",
+			"ComponentName":"Memberships & Job Boards",
+			"Weight":1
+		},
+		{
+			"ParentName":"Total Recruitment",
+			"ComponentName":"Candidate Assessments",
+			"Weight":1
+		},
+		{
+			"ParentName":"Total Recruitment",
+			"ComponentName":"Academic partnerships",
+			"Weight":1
+		},
+		{
+			"ParentName":"Total Recruitment",
+			"ComponentName":"Recruitment - Other",
+			"Weight":1
+		}
+	],
+	"Subsets@Code.links":
+	[
+		"CH Purpose Code.subsets/Level 0.json"
+	]
+}

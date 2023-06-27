@@ -1,0 +1,35 @@
+#region Prolog
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+
+## Process Created for Horizon 2022 Demo
+
+
+cDim = 'Product';
+
+
+sCons = 'Bikes';
+
+sElement1 = 'E-Bikes';
+sElement2 = '701';
+
+DimensionElementInsert( cDim, '', sElement1, 'c' );
+DimensionElementInsert( cDim, '', sElement2, 'n' );
+
+DimensionElementComponentAdd(cDim, sCons, sElement1, 1);
+DimensionElementComponentAdd(cDim, sElement1, sElement2, 1);
+
+#endregion
+#region Metadata
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Data
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Epilog
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion

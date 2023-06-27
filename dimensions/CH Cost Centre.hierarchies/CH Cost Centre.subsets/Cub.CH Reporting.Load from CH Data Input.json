@@ -1,0 +1,10 @@
+{
+	"@type":"Subset",
+	"Name":"Cub.CH Reporting.Load from CH Data Input",
+	"Elements":
+	[
+		{
+			"@id":"Dimensions('CH Cost Centre')/Hierarchies('CH Cost Centre')/Elements('CC 02/0001')"
+		}
+	]
+}

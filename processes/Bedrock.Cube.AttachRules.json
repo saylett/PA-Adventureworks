@@ -1,0 +1,27 @@
+{
+	"@type":"Process",
+	"Name":"Bedrock.Cube.AttachRules",
+	"HasSecurityAccess":true,
+	"Code@Code.link":"Bedrock.Cube.AttachRules.ti",
+	"UIData":"CubeAction=1511€DataAction=1503€CubeLogChanges=0€",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pCube",
+			"Prompt":"Name of cube",
+			"Value":"Target",
+			"Type":"String"
+		},
+		{
+			"Name":"pDebug",
+			"Prompt":"Debug Mode",
+			"Value":0,
+			"Type":"Numeric"
+		}
+	],
+	"Variables":[]
+}

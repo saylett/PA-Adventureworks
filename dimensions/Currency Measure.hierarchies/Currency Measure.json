@@ -1,0 +1,19 @@
+{
+	"@type":"Hierarchy",
+	"Name":"Currency Measure",
+	"Elements":
+	[
+		{
+			"Name":"Spot Rate",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Average Rate",
+			"Type":"Numeric"
+		}
+	],
+	"Subsets@Code.links":
+	[
+		"Currency Measure.subsets/}Bedrock.Dim.Clone.json"
+	]
+}

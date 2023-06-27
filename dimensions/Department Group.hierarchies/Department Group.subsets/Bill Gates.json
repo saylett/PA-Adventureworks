@@ -1,0 +1,16 @@
+{
+	"@type":"Subset",
+	"Name":"Bill Gates",
+	"Elements":
+	[
+		{
+			"@id":"Dimensions('Department Group')/Hierarchies('Department Group')/Elements('2')"
+		},
+		{
+			"@id":"Dimensions('Department Group')/Hierarchies('Department Group')/Elements('3')"
+		},
+		{
+			"@id":"Dimensions('Department Group')/Hierarchies('Department Group')/Elements('4')"
+		}
+	]
+}

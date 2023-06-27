@@ -1,0 +1,189 @@
+#region Prolog
+
+######################################
+##~~  Copyright Cubewise P/L 2010 ~~##
+######################################
+
+# This process will Add or Remove Elements from a Consolidation
+
+
+### Constants ###
+
+cProcess = 'Bedrock.Dim.Element.Move';
+cTimeStamp = TimSt( Now, '\Y\m\d\h\i\s' );
+cDebugFile = GetProcessErrorFileDirectory | cProcess | '.' | cTimeStamp | '.';
+
+
+### Initialise Debug ###
+
+If( pDebug >= 1 );
+
+  # Set debug file name
+  sDebugFile = cDebugFile | 'Prolog.debug';
+
+  # Log start time
+  AsciiOutput( sDebugFile, 'Process Started: ' | TimSt( Now, '\d-\m-\Y \h:\i:\s' ) );
+
+  # Log parameters
+  AsciiOutput( sDebugFile, 'Parameters: pDimension    : ' | pDimension );
+  AsciiOutput( sDebugFile, '            pElement      : ' | pElement );
+  AsciiOutput( sDebugFile, '            pTargetConsol : ' | pTargetConsol );
+  AsciiOutput( sDebugFile, '            pAction       : ' | pAction );
+  AsciiOutput( sDebugFile, '            pElWeight     : ' | NumberToString( pElWeight ) );
+
+EndIf;
+
+
+### Validate Parameters ###
+
+nErrors = 0;
+
+# Validate dimension
+If( Trim( pDimension ) @= '' );
+  nErrors = 1;
+  sMessage = 'No dimension specified';
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  ItemReject( sMessage );
+EndIf;
+If( DimensionExists( pDimension ) = 0 );
+  nErrors = 1;
+  sMessage = 'Dimension: ' | pDimension | ' does not exist on server.';
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  ItemReject( sMessage );
+EndIf;
+
+# Validate Element
+If( Trim( pElement ) @= '' );
+  nErrors = 1;
+  sMessage = 'No element specified';
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  ItemReject( sMessage );
+EndIf;
+If( DimIx( pDimension, pElement ) = 0 );
+  nErrors = 1;
+  sMessage = 'Element: ' | pElement | ' does not exist in dimension: ' | pDimension;
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  ItemReject( sMessage );
+EndIf;
+
+# Validate target consol
+If( DimIx( pDimension, pTargetConsol ) = 0 );
+  nErrors = 1;
+  sMessage = 'Consolidated Element: ' | pTargetConsol | ' does not exist in dimension: ' | pDimension;
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  ItemReject( sMessage );
+EndIf;
+If( DType( pDimension, pTargetConsol ) @<> 'C' );
+  nErrors = 1;
+  sMessage = 'Target Consolidation: ' | pTargetConsol | ' has incorrect element type.';
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  ItemReject( sMessage );
+EndIf;
+If( ElIsAnc( pDimension, pElement, pTargetConsol ) = 1 );
+  nErrors = 1;
+  sMessage = 'Cannot add element: ' | pElement | ' to consolidation: ' | pTargetConsol | ' due to circular reference.';
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  ItemReject( sMessage );
+EndIf;
+
+# Validate action
+If( pAction @<> 'Add' & pAction @<> 'Remove' );
+  nErrors = 1;
+  sMessage = 'Invalid action: ' | pAction | '. Valid actions are Add or Remove';
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  ItemReject( sMessage );
+EndIf;
+
+
+If( pDebug <= 1 );
+
+  ### Insert Element into consolidation ###
+
+  If( pAction @= 'Add' );
+    DimensionElementComponentAdd( pDimension, pTargetConsol, pElement, pElWeight );
+  EndIf;
+
+
+  ### Remove Element from consolidation ###
+
+  If( pAction @= 'Remove' );
+
+    # Check that element is actually a child of target consol
+    If( ElIsComp ( pDimension, pElement, pTargetConsol ) = 1 );
+      DimensionElementComponentDelete( pDimension, pTargetConsol, pElement );
+    Else;
+      nErrors = 1;
+      sMessage = 'Element: ' | pElement | ' is not a child of consolidation: ' | pTargetConsol;
+      If( pDebug >= 1 );
+        AsciiOutput( sDebugFile, sMessage );
+      EndIf;
+      ItemReject( sMessage );
+    EndIf;
+
+  EndIf;
+
+EndIf;
+
+
+### End Prolog ###
+#endregion
+#region Metadata
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Data
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Epilog
+
+#####################################
+##~~ Copyright Cubewise P/L 2010 ~~##
+#####################################
+
+
+### Initialise Debug ###
+
+If( pDebug >= 1 );
+
+  # Set debug file name
+  sDebugFile = cDebugFile | 'Epilog.debug';
+
+  # Log errors
+  If( nErrors <> 0 );
+    AsciiOutput( sDebugFile, 'Errors Occurred' );
+  EndIf;
+
+  # Log finish time
+  AsciiOutput( sDebugFile, 'Process Finished: ' | TimSt( Now, '\d-\m-\Y \h:\i:\s' ) );
+
+EndIf;
+
+
+### If errors occurred terminate process with a major error status ###
+
+If( nErrors <> 0 );
+  ProcessQuit;
+EndIf;
+
+
+### End Epilog ###
+#endregion

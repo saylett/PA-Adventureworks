@@ -1,0 +1,12 @@
+{
+	"@type":"Hierarchy",
+	"Name":"CH Currency",
+	"Elements":
+	[
+		{
+			"Name":"Local",
+			"Type":"Numeric"
+		}
+	],
+	"Subsets@Code.links":[]
+}

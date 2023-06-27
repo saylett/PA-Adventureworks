@@ -1,0 +1,39 @@
+{
+	"@type":"Cube",
+	"Name":"CH Reporting",
+	"Dimensions":
+	[
+		{
+			"@id":"Dimensions('CH Version')"
+		},
+		{
+			"@id":"Dimensions('CH Year')"
+		},
+		{
+			"@id":"Dimensions('CH Month')"
+		},
+		{
+			"@id":"Dimensions('CH Currency')"
+		},
+		{
+			"@id":"Dimensions('CH Company')"
+		},
+		{
+			"@id":"Dimensions('CH Cost Centre')"
+		},
+		{
+			"@id":"Dimensions('CH SCOA')"
+		},
+		{
+			"@id":"Dimensions('CH Purpose Code')"
+		},
+		{
+			"@id":"Dimensions('CH Measure')"
+		}
+	],
+	"Views@Code.links":
+	[
+		"CH Reporting.views/Cub.CH Reporting.Clear.json",
+		"CH Reporting.views/Cub.CH Reporting.Load from CH Data Input.json"
+	]
+}

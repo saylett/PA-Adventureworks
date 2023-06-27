@@ -1,0 +1,39 @@
+{
+	"@type":"Process",
+	"Name":"Bedrock.Cube.Dimension.Replace",
+	"HasSecurityAccess":true,
+	"Code@Code.link":"Bedrock.Cube.Dimension.Replace.ti",
+	"UIData":"CubeAction=1511€DataAction=1503€CubeLogChanges=0€",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pCube",
+			"Prompt":"Cube",
+			"Value":"Wholesale",
+			"Type":"String"
+		},
+		{
+			"Name":"pSourceDim",
+			"Prompt":"Dimension to be replaced",
+			"Value":"Sales Territory",
+			"Type":"String"
+		},
+		{
+			"Name":"pTargetDim",
+			"Prompt":"Replacement Dimension",
+			"Value":"Region",
+			"Type":"String"
+		},
+		{
+			"Name":"pDebug",
+			"Prompt":"Debug Mode",
+			"Value":0,
+			"Type":"Numeric"
+		}
+	],
+	"Variables":[]
+}

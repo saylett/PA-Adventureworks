@@ -1,0 +1,20 @@
+{
+	"@type":"Cube",
+	"Name":"Time",
+	"Dimensions":
+	[
+		{
+			"@id":"Dimensions('Month')"
+		},
+		{
+			"@id":"Dimensions('Year')"
+		},
+		{
+			"@id":"Dimensions('Time Measures')"
+		}
+	],
+	"Views@Code.links":
+	[
+		"Time.views/Calender Year Index.json"
+	]
+}

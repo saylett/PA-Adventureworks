@@ -1,0 +1,13 @@
+{
+	"@type":"Subset",
+	"Name":"Pacific",
+	"Elements":
+	[
+		{
+			"@id":"Dimensions('Organization')/Hierarchies('Organization')/Elements('10')"
+		},
+		{
+			"@id":"Dimensions('Organization')/Hierarchies('Organization')/Elements('13')"
+		}
+	]
+}

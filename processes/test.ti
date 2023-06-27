@@ -1,0 +1,44 @@
+#region Prolog
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+# Load data from flat file using Bedrock process
+vProcessName = '}bedrock.cube.data.importfromfile';
+vSourceDir = 'path/to/dir';
+vSourceFile = 'data.csv';
+vTargetCube = 'Staging Cube';
+vTitleRows = 0;
+vDelimiter = ',';
+vQuote = '"';
+vDebug = 0;
+
+# Call Bedrock process to load data into cube
+#ExecuteProcess(vProcessName, 'pSourceDir', vSourceDir, 'pSourceFile', vSourceFile, 'pTargetCube', vTargetCube, 'pTitleRows', vTitleRows, 'pDelimiter', vDelimiter, 'pQuote', vQuote, 'pDebug', vDebug);
+
+# Enable cube logging for all cubes
+vCubesDimension = '}Cubes';
+vCubesCount = Dimsiz(vCubesDimension);
+vCubeIndex = 0;
+
+while (vCubeIndex < vCubesCount);
+    vCubeIndex = vCubeIndex + 1;
+    vElement = DimNm(vCubesDimension, vCubeIndex);
+    CubeSetLogChanges(vElement, 1);
+end;
+
+
+
+
+#endregion
+#region Metadata
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Data
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Epilog
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion

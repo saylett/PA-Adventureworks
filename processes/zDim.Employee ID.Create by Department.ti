@@ -1,0 +1,57 @@
+#region Prolog
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+
+cProcess = GetProcessName();
+cCube = 'Headcount Forecast';
+cView = '2205171938220.145738709';
+
+cDim = 'Employee ID';
+cNewHireConsol = 'New Hires';
+cNewHire = 'New Hire 11';
+
+sMDX = Expand ('SELECT 
+  NON EMPTY 
+   {[Version].[%pVersion%]} ON COLUMNS, 
+  NON EMPTY 
+   {[Department].[Department].[%pDepartment%]}
+   * {[Workday Load Day].[Workday Load Day].[Latest]}
+   * {TM1FILTERBYLEVEL({TM1DRILLDOWNMEMBER({[Employee ID].[Employee ID].[New Hires]}, {[Employee ID].[Employee ID].[New Hires]}, RECURSIVE )}, 0)}
+   * {[Headcount Forecast Measure].[Headcount Forecast Measure].[FTE]} 
+  ON ROWS 
+FROM [Headcount Forecast] 
+');
+
+ViewCreateByMDX(cCube, cView, sMDX);
+
+DataSourceType = 'VIEW';
+DataSourceNameForServer = cCube;
+DatasourceCubeView = cView;
+#endregion
+#region Metadata
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+sMessage = Expand ('%cProcess%: Processing %vEmployeeID%. FTE: %vValue%');
+LogOutput ('INFO', sMessage); 
+
+If (vEmployeeID @= 'New Hire 4');
+  DimensionElementInsertDirect(cDim, '', cNewHire, 'N');
+  DimensionElementComponentAddDirect (cDim, cNewHireConsol, cNewHire, 1);
+EndIf;
+
+If (vEmployeeID @= 'New Hire 4');
+  CellPutN (1, cCube, vVersion, vDepartment, vWorkdayLoadDay, cNewHire, vHeadcountForecastMeasure);
+EndIf;
+
+CellPutN (0, cCube, vVersion, vDepartment, vWorkdayLoadDay, vEmployeeID, vHeadcountForecastMeasure);
+#endregion
+#region Data
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Epilog
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion

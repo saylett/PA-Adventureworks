@@ -1,0 +1,16 @@
+{
+	"@type":"Subset",
+	"Name":"Cognos Express Administrator",
+	"Elements":
+	[
+		{
+			"@id":"Dimensions('Department Group')/Hierarchies('Department Group')/Elements('5')"
+		},
+		{
+			"@id":"Dimensions('Department Group')/Hierarchies('Department Group')/Elements('6')"
+		},
+		{
+			"@id":"Dimensions('Department Group')/Hierarchies('Department Group')/Elements('7')"
+		}
+	]
+}

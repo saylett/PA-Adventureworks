@@ -1,0 +1,86 @@
+#region Prolog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+
+## This Process Uploads Sales Dats into the 'Sales Reseller' cube ##
+cCubeName = 'Sales Reseller';
+cVersion = 'Actual';
+cCurrency = 'Local';
+
+
+
+
+## Clear all Data from the Cube Prior to Uploading ##
+## This function only works on TM1 Version 9.4 and above ##
+
+CubeClearData( cCubeName );
+
+
+#endregion
+#region Metadata
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Data
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+
+## CLEAN SOURCE VARIABLES ###
+
+sYear = NumberToString(vFiscalYear);
+nCost = NUMBR(vTotalproductcost);
+nSalesAmt = NUMBR(vSalesamount);
+nTax = NUMBR(vTaxamt);
+nFreight = NUMBR(vFreight);
+sMonth = vEnglishmonthname;
+sProduct = NumberToString(vProductKey);
+
+
+## Upload Data into Sales Cube ##
+sMeasure = 'Qty';
+nValueGet = CellGetN(cCubeName,cVersion,sYear,sMonth,cCurrency,vSalesterritoryregion,
+  vResellername,vEnglishpromotionname,sProduct,sMeasure ) ;
+CellPutN ( vOrderquantity + nValueGet , cCubeName,cVersion,sYear,sMonth,cCurrency,vSalesterritoryregion,
+  vResellername,vEnglishpromotionname,sProduct,sMeasure ) ;
+
+sMeasure = 'Sales Amount';
+nValueGet = CellGetN(cCubeName,cVersion,sYear,sMonth,cCurrency,vSalesterritoryregion,
+  vResellername,vEnglishpromotionname,sProduct,sMeasure ) ;
+CellPutN ( nSalesAmt + nValueGet , cCubeName,cVersion,sYear,sMonth,cCurrency,vSalesterritoryregion,
+  vResellername,vEnglishpromotionname,sProduct,sMeasure ) ;
+
+sMeasure = 'Cost';
+nValueGet = CellGetN(cCubeName,cVersion,sYear,sMonth,cCurrency,vSalesterritoryregion,
+  vResellername,vEnglishpromotionname,sProduct,sMeasure ) ;
+CellPutN ( nCost + nValueGet , cCubeName,cVersion,sYear,sMonth,cCurrency,vSalesterritoryregion,
+  vResellername,vEnglishpromotionname,sProduct,sMeasure ) ;
+
+sMeasure = 'Tax Amount';
+nValueGet = CellGetN(cCubeName,cVersion,sYear,sMonth,cCurrency,vSalesterritoryregion,
+  vResellername,vEnglishpromotionname,sProduct,sMeasure ) ;
+CellPutN ( nTax + nValueGet , cCubeName,cVersion,sYear,sMonth,cCurrency,vSalesterritoryregion,
+  vResellername,vEnglishpromotionname,sProduct,sMeasure ) ;
+
+sMeasure = 'Freight';
+nValueGet = CellGetN(cCubeName,cVersion,sYear,sMonth,cCurrency,vSalesterritoryregion,
+  vResellername,vEnglishpromotionname,sProduct,sMeasure ) ;
+CellPutN ( nFreight + nValueGet , cCubeName,cVersion,sYear,sMonth,cCurrency,vSalesterritoryregion,
+  vResellername,vEnglishpromotionname,sProduct,sMeasure ) ;
+
+sMeasure = 'Discount Amount';
+nValueGet = CellGetN(cCubeName,cVersion,sYear,sMonth,cCurrency,vSalesterritoryregion,
+  vResellername,vEnglishpromotionname,sProduct,sMeasure ) ;
+CellPutN ( vDiscountamount + nValueGet , cCubeName,cVersion,sYear,sMonth,cCurrency,vSalesterritoryregion,
+  vResellername,vEnglishpromotionname,sProduct,sMeasure ) ;
+
+#endregion
+#region Epilog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion

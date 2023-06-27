@@ -1,0 +1,34 @@
+{
+	"@type":"Process",
+	"Name":"Bedrock.Dim.Attr.Create.FromParents",
+	"HasSecurityAccess":true,
+	"Code@Code.link":"Bedrock.Dim.Attr.Create.FromParents.ti",
+	"UIData":"CubeAction=1511€DataAction=1503€CubeLogChanges=0€",
+	"VariablesUIData":
+	[
+		"IgnoredInputVarName=vElement€VarType=32€ColType=1165€"
+	],
+	"DataSource":
+	{
+		"Type":"TM1DimensionSubset",
+		"dataSourceNameForClient":"}Dimensions",
+		"dataSourceNameForServer":"}Dimensions",
+		"subset":"All"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pDimension",
+			"Prompt":"Dimension",
+			"Value":"Product",
+			"Type":"String"
+		},
+		{
+			"Name":"pDebug",
+			"Prompt":"Debug Mode",
+			"Value":0,
+			"Type":"Numeric"
+		}
+	],
+	"Variables":[]
+}

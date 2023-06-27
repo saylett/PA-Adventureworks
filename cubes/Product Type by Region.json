@@ -1,0 +1,33 @@
+{
+	"@type":"Cube",
+	"Name":"Product Type by Region",
+	"Rules@Code.link":"Product Type by Region.rules",
+	"Dimensions":
+	[
+		{
+			"@id":"Dimensions('Version')"
+		},
+		{
+			"@id":"Dimensions('Year')"
+		},
+		{
+			"@id":"Dimensions('Period')"
+		},
+		{
+			"@id":"Dimensions('Currency')"
+		},
+		{
+			"@id":"Dimensions('Region')"
+		},
+		{
+			"@id":"Dimensions('Product Type')"
+		},
+		{
+			"@id":"Dimensions('Product Type by Region Measure')"
+		}
+	],
+	"Views@Code.links":
+	[
+		"Product Type by Region.views/Default.json"
+	]
+}

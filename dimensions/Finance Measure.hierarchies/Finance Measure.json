@@ -1,0 +1,12 @@
+{
+	"@type":"Hierarchy",
+	"Name":"Finance Measure",
+	"Elements":
+	[
+		{
+			"Name":"Amount",
+			"Type":"Numeric"
+		}
+	],
+	"Subsets@Code.links":[]
+}

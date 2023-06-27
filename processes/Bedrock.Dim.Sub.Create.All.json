@@ -1,0 +1,51 @@
+{
+	"@type":"Process",
+	"Name":"Bedrock.Dim.Sub.Create.All",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Bedrock.Dim.Sub.Create.All.ti",
+	"UIData":"CubeAction=1511€DataAction=1503€CubeLogChanges=0€",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pDimension",
+			"Prompt":"Dimension",
+			"Value":"",
+			"Type":"String"
+		},
+		{
+			"Name":"pSubset",
+			"Prompt":"Subset",
+			"Value":"",
+			"Type":"String"
+		},
+		{
+			"Name":"pAddToSubset",
+			"Prompt":"Add to an existing Subset (Boolean: 1=True)",
+			"Value":0,
+			"Type":"Numeric"
+		},
+		{
+			"Name":"pExclusions",
+			"Prompt":"Excluded Elements",
+			"Value":"",
+			"Type":"String"
+		},
+		{
+			"Name":"pDelimiter",
+			"Prompt":"Delimiter",
+			"Value":"&",
+			"Type":"String"
+		},
+		{
+			"Name":"pDebug",
+			"Prompt":"Debug Mode",
+			"Value":0,
+			"Type":"Numeric"
+		}
+	],
+	"Variables":[]
+}

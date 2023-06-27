@@ -1,0 +1,189 @@
+#region Prolog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+#####################################
+##~~ Copyright Cubewise P/L 2010 ~~##
+#####################################
+
+# This process will remove specified elements from a subset
+# If a leaf level element is specified it will be removed
+# If a consolidated element is specified it will be removed as well as its descendants
+
+
+### Constants ###
+
+cProcess = 'Bedrock.Dim.Sub.Exclude';
+cTimeStamp = TimSt( Now, '\Y\m\d\h\i\s' );
+cDebugFile = GetProcessErrorFileDirectory | cProcess | '.' | cTimeStamp | '.';
+
+
+### Initialise Debug ###
+
+If( pDebug >= 1 );
+
+  # Set debug file name
+  sDebugFile = cDebugFile | 'Prolog.debug';
+
+  # Log start time
+  AsciiOutput( sDebugFile, 'Process Started: ' | TimSt( Now, '\d-\m-\Y \h:\i:\s' ) );
+
+  # Log parameters
+  AsciiOutput( sDebugFile, 'Parameters: pDimension   : ' | pDimension );
+  AsciiOutput( sDebugFile, '            pSubset      : ' | pSubset );
+  AsciiOutput( sDebugFile, '            pElements  : ' | pElements );
+  AsciiOutput( sDebugFile, '            pDelimiter   : ' | pDelimiter );
+
+EndIf;
+
+
+### Validate Parameters ###
+
+nErrors = 0;
+
+# Validate dimension
+If( Trim( pDimension ) @= '' );
+  nErrors = 1;
+  sMessage = 'No dimension specified';
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  ItemReject( sMessage );
+EndIf;
+If( DimensionExists( pDimension ) = 0 );
+  nErrors = 1;
+  sMessage = 'Invalid dimension: ' | pDimension;
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  ItemReject( sMessage );
+EndIf;
+
+# Validate subset
+If( Trim( pSubset ) @= '' );
+  nErrors = 1;
+  sMessage = 'No subset specified';
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  ItemReject( sMessage );
+EndIf;
+If( SubsetExists( pDimension, pSubset ) = 0 );
+  nErrors = 1;
+  sMessage = 'Invalid subset: ' | pSubset | ' in dimension: ' | pDimension;
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  ItemReject( sMessage );
+EndIf;
+
+# Validate Elements
+If( Trim( pElements ) @= '' );
+  nErrors = 1;
+  sMessage = 'No Elements specified';
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  ItemReject( sMessage );
+EndIf;
+
+# Validate delimiter
+If( pElements @<> '' & pDelimiter @= '' );
+  pDelimiter = ';';
+EndIf;
+
+
+### Process Elements ###
+
+If( pDebug <= 1 );
+
+  nDelimIndex = 1;
+  sExclusions = pElements;
+
+  While( nDelimIndex <> 0 & Long( sExclusions ) > 0 );
+
+    nDelimIndex = Scan( pDelimiter, sExclusions );
+    If( nDelimIndex <> 0 );
+      sExclusion = Trim( SubSt( sExclusions, 1, nDelimIndex - 1 ) );
+      sExclusions = Trim( SubSt( sExclusions, nDelimIndex + Long( pDelimiter ), Long( sExclusions ) ) );
+    Else;
+      sExclusion = Trim( sExclusions );
+    EndIf;
+
+    # Check that Element is present in the dimension
+    If( DimIx( pDimension, sExclusion ) <> 0 );
+      sExclusion = DimensionElementPrincipalName( pDimension, sExclusion );
+      # Work through subset and remove Element
+      nSubsetIndex = 1;
+      nSubsetSize = SubsetGetSize( pDimension, pSubset );
+      While( nSubsetIndex <= nSubsetSize );
+        sElement = SubsetGetElementName( pDimension, pSubset, nSubsetIndex );
+        # If Element is found or a descendant of the Element is found the remove from subset
+        If( pDebug <= 1 & sElement @= sExclusion % ElIsAnc( pDimension, sExclusion, sElement ) = 1 );
+          SubsetElementDelete( pDimension, pSubset, nSubsetIndex );
+          nSubsetSize = nSubsetSize - 1;
+        Else;
+          nSubsetIndex = nSubsetIndex + 1;
+        EndIf;
+      End;
+    Else;
+      If( pDebug >= 1 );
+        AsciiOutput( sDebugFile, 'Element: ' | sExclusion | ' does not exist in dimension: ' | pDimension );
+      EndIf;
+    EndIf;
+
+  End;
+
+EndIf;
+
+
+### End Prolog ###
+#endregion
+#region Metadata
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Data
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Epilog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+######################################
+##~~  Copyright Cubewise P/L 2010 ~~##
+######################################
+
+
+### Initialise Debug ###
+
+If( pDebug >= 1 );
+
+  # Set debug file name
+  sDebugFile = cDebugFile | 'Epilog.debug';
+
+  # Log errors
+  If( nErrors <> 0 );
+    AsciiOutput( sDebugFile, 'Errors Occurred' );
+  EndIf;
+
+  # Log finish time
+  AsciiOutput( sDebugFile, 'Process Finished: ' | TimSt( Now, '\d-\m-\Y \h:\i:\s' ) );
+
+EndIf;
+
+
+### If errors occurred terminate process with a major error status ###
+
+If( nErrors <> 0 );
+  ProcessQuit;
+EndIf;
+
+
+### End Epilog ###
+#endregion

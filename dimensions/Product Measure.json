@@ -1,0 +1,13 @@
+{
+	"@type":"Dimension",
+	"Name":"Product Measure",
+	"AllLeavesHierarchyName":"",
+	"DefaultHierarchy":
+	{
+		"@id":"Dimensions('Product Measure')/Hierarchies('Product Measure')"
+	},
+	"Hierarchies@Code.links":
+	[
+		"Product Measure.hierarchies/Product Measure.json"
+	]
+}

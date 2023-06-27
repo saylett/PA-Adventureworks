@@ -1,0 +1,27 @@
+{
+	"@type":"Process",
+	"Name":"Bedrock.Dim.AllElements.Delete",
+	"HasSecurityAccess":true,
+	"Code@Code.link":"Bedrock.Dim.AllElements.Delete.ti",
+	"UIData":"CubeAction=1511€DataAction=1503€CubeLogChanges=0€",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pDimension",
+			"Prompt":"Dimension to delete all elements",
+			"Value":"",
+			"Type":"String"
+		},
+		{
+			"Name":"pDebug",
+			"Prompt":"Debug Mode",
+			"Value":0,
+			"Type":"Numeric"
+		}
+	],
+	"Variables":[]
+}

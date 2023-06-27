@@ -1,0 +1,61 @@
+{
+	"@type":"Subset",
+	"Name":"Default",
+	"Elements":
+	[
+		{
+			"@id":"Dimensions('Employee')/Hierarchies('Employee')/Elements('All Employees By Dept')"
+		},
+		{
+			"@id":"Dimensions('Employee')/Hierarchies('Employee')/Elements('Document Control')"
+		},
+		{
+			"@id":"Dimensions('Employee')/Hierarchies('Employee')/Elements('Engineering')"
+		},
+		{
+			"@id":"Dimensions('Employee')/Hierarchies('Employee')/Elements('Executive')"
+		},
+		{
+			"@id":"Dimensions('Employee')/Hierarchies('Employee')/Elements('Facilities and Maintenance')"
+		},
+		{
+			"@id":"Dimensions('Employee')/Hierarchies('Employee')/Elements('Finance')"
+		},
+		{
+			"@id":"Dimensions('Employee')/Hierarchies('Employee')/Elements('Human Resources')"
+		},
+		{
+			"@id":"Dimensions('Employee')/Hierarchies('Employee')/Elements('Information Services')"
+		},
+		{
+			"@id":"Dimensions('Employee')/Hierarchies('Employee')/Elements('Marketing')"
+		},
+		{
+			"@id":"Dimensions('Employee')/Hierarchies('Employee')/Elements('Production')"
+		},
+		{
+			"@id":"Dimensions('Employee')/Hierarchies('Employee')/Elements('Production Control')"
+		},
+		{
+			"@id":"Dimensions('Employee')/Hierarchies('Employee')/Elements('Purchasing')"
+		},
+		{
+			"@id":"Dimensions('Employee')/Hierarchies('Employee')/Elements('Quality Assurance')"
+		},
+		{
+			"@id":"Dimensions('Employee')/Hierarchies('Employee')/Elements('Research and Development')"
+		},
+		{
+			"@id":"Dimensions('Employee')/Hierarchies('Employee')/Elements('Sales')"
+		},
+		{
+			"@id":"Dimensions('Employee')/Hierarchies('Employee')/Elements('Shipping and Receiving')"
+		},
+		{
+			"@id":"Dimensions('Employee')/Hierarchies('Employee')/Elements('Tool Design')"
+		},
+		{
+			"@id":"Dimensions('Employee')/Hierarchies('Employee')/Elements('Wholesale')"
+		}
+	]
+}

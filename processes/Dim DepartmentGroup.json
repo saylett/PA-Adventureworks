@@ -1,0 +1,48 @@
+{
+	"@type":"Process",
+	"Name":"Dim DepartmentGroup",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Dim DepartmentGroup.ti",
+	"UIData":"CubeAction=1511€DataAction=1503€CubeLogChanges=0€",
+	"VariablesUIData":
+	[
+		"VarType=32€ColType=827€",
+		"VarType=32€ColType=827€",
+		"VarType=32€ColType=827€"
+	],
+	"DataSource":
+	{
+		"Type":"ODBC",
+		"dataSourceNameForClient":"AdventureWorksDW 64",
+		"dataSourceNameForServer":"AdventureWorksDW 64",
+		"password":"aahaM3`\\G]W2yoO5ADxA4zqlrxj_[1ChQ;qb0^g>ocxV;GaJ1]QaGa6gZndnS66OmHr7bG90fOulObpSxIgSp>p<`fR1`JS;Qu;JXXmRD3dlcxNC?26]Q9WPQHSlhMaa3JHU4ai=:oCZJdx:otYCGWUWqfGeiChW<qCK]z_^^hFL6pr9M5oMK@2y\\<l;Q;lxiY15zNAz",
+		"query":"SELECT CAST(DepartmentGroupKey as TEXT) Id, \r\n\tCAST(ParentDepartmentGroupKey as TEXT) Parent, \r\n\tDepartmentGroupName Name\r\nFROM DimDepartmentGroup\r\nORDER BY CAST(ParentDepartmentGroupKey as NUMBER), CAST(DepartmentGroupKey as NUMBER)",
+		"userName":"",
+		"usesUnicode":true
+	},
+	"Parameters":[],
+	"Variables":
+	[
+		{
+			"Name":"Id",
+			"Type":"String",
+			"Position":1,
+			"StartByte":0,
+			"EndByte":0
+		},
+		{
+			"Name":"Parent",
+			"Type":"String",
+			"Position":2,
+			"StartByte":0,
+			"EndByte":0
+		},
+		{
+			"Name":"Name",
+			"Type":"String",
+			"Position":3,
+			"StartByte":0,
+			"EndByte":0
+		}
+	]
+}

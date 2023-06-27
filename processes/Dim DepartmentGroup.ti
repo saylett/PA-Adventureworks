@@ -1,0 +1,40 @@
+#region Prolog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+sDimName = 'Department Group';
+
+If(DimensionExists(sDimName) = 0);
+    DimensionCreate(sDimName);
+EndIf;
+
+DimensionSortOrder(sDimName, 'ByName', 'Ascending', 'ByHierarchy', 'Ascending');
+
+AttrInsert(sDimName,'','Description','A');
+
+#endregion
+#region Metadata
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+DimensionElementInsert(sDimName,'', Id, 'N');
+If(Parent @<> '');
+    DimensionElementComponentAdd(sDimName, Parent, Id, 1);
+EndIf;
+
+#endregion
+#region Data
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+
+AttrPutS(Name, sDimName, Id, 'Description');
+#endregion
+#region Epilog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion

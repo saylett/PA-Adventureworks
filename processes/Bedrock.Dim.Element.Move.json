@@ -1,0 +1,51 @@
+{
+	"@type":"Process",
+	"Name":"Bedrock.Dim.Element.Move",
+	"HasSecurityAccess":true,
+	"Code@Code.link":"Bedrock.Dim.Element.Move.ti",
+	"UIData":"CubeAction=1511€DataAction=1503€CubeLogChanges=0€",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pDimension",
+			"Prompt":"Dimension Name",
+			"Value":"",
+			"Type":"String"
+		},
+		{
+			"Name":"pElement",
+			"Prompt":"Element Name",
+			"Value":"",
+			"Type":"String"
+		},
+		{
+			"Name":"pTargetConsol",
+			"Prompt":"Target Consolidation",
+			"Value":"",
+			"Type":"String"
+		},
+		{
+			"Name":"pAction",
+			"Prompt":"Add or Remove Element from Consolidation",
+			"Value":"Add",
+			"Type":"String"
+		},
+		{
+			"Name":"pElWeight",
+			"Prompt":"Element Weight (for Add only)",
+			"Value":1,
+			"Type":"Numeric"
+		},
+		{
+			"Name":"pDebug",
+			"Prompt":"Debug Mode",
+			"Value":0,
+			"Type":"Numeric"
+		}
+	],
+	"Variables":[]
+}

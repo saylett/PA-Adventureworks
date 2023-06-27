@@ -1,0 +1,82 @@
+#region Prolog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+DatasourceASCIIQuoteCharacter='';
+sElFileName = pDimName | '.dimx';
+sAttrFileName = pDimName | '.dima';
+
+sAttrDimName = '}ElementAttributes_' | pDimName;
+sAttributes = 'Element';
+sAttrTypes = '';
+nAttrCount = DIMSIZ( sAttrDimName );
+a = 1;
+WHILE (a <= nAttrCount);
+    sAttr = DIMNM( sAttrDimName , a);
+    sAttrType = SUBST( DTYPE( sAttrDimName, sAttr ), 2, 1 );
+    sAttributes = sAttributes | '|' | sAttr;
+    sAttrTypes = sAttrTypes | '|' | sAttrType;
+    a = a + 1;
+END;
+
+ASCIIOutput(sAttrFileName, sAttributes);
+ASCIIOutput(sAttrFileName, sAttrTypes);
+
+# Loop through all of the elements
+nElCount = DIMSIZ(pDimName);
+n = 1;
+WHILE (n <= nElCount);
+    sEl = DIMNM(pDimName, n);
+    sType = DTYPE(pDimName, sEl);
+
+    # Loop through all of the parents
+    sParents = '';
+    nParentCount = ELPARN(pDimName, sEl);
+    p = 1;
+    WHILE (p <= nParentCount);
+        sPar = ELPAR(pDimName,  sEl, p);
+        sParents = sParents | '|' | sPar;
+        p = p + 1;
+    END;
+
+    # Create a pipe separated file
+    sLine = sEl | '|' | sType | sParents;
+    ASCIIOutput(sElFileName, sLine);
+
+    sAttributes = '';
+    nAttrCount = DIMSIZ( sAttrDimName );
+    a = 1;
+    WHILE (a <= nAttrCount);
+        sAttr = DIMNM( sAttrDimName , a);
+        sAttrType = SUBST( DTYPE( sAttrDimName, sAttr ), 2, 1 );
+        If( sAttrType @= 'N' );
+            sAttributes = sAttributes | '|' | NumberToString(ATTRN(pDimName, sEl, sAttr));
+        Else;
+            sAttributes = sAttributes | '|' | ATTRS(pDimName, sEl, sAttr);
+        EndIf;
+        a = a + 1;
+    END;
+
+    sLine = sEl | sAttributes;
+    ASCIIOutput(sAttrFileName, sLine);
+
+    n = n + 1;
+END;
+
+#endregion
+#region Metadata
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Data
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Epilog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion

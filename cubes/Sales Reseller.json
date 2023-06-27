@@ -1,0 +1,39 @@
+{
+	"@type":"Cube",
+	"Name":"Sales Reseller",
+	"Rules@Code.link":"Sales Reseller.rules",
+	"Dimensions":
+	[
+		{
+			"@id":"Dimensions('Scenario')"
+		},
+		{
+			"@id":"Dimensions('Year')"
+		},
+		{
+			"@id":"Dimensions('Period')"
+		},
+		{
+			"@id":"Dimensions('Currency')"
+		},
+		{
+			"@id":"Dimensions('Employee')"
+		},
+		{
+			"@id":"Dimensions('Sales Territory')"
+		},
+		{
+			"@id":"Dimensions('Reseller')"
+		},
+		{
+			"@id":"Dimensions('Promotion')"
+		},
+		{
+			"@id":"Dimensions('Product')"
+		},
+		{
+			"@id":"Dimensions('Sales Measure')"
+		}
+	],
+	"Views@Code.links":[]
+}

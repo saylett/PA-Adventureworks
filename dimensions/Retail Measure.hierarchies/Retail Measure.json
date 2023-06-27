@@ -1,0 +1,56 @@
+{
+	"@type":"Hierarchy",
+	"Name":"Retail Measure",
+	"Elements":
+	[
+		{
+			"Name":"Order Quantity",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Unit Price",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Sales Units",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Sales Amount",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Tax Amount",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Total Product Cost",
+			"Type":"Consolidated"
+		},
+		{
+			"Name":"Freight",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Product Standard Cost",
+			"Type":"Numeric"
+		}
+	],
+	"Edges":
+	[
+		{
+			"ParentName":"Total Product Cost",
+			"ComponentName":"Freight",
+			"Weight":1
+		},
+		{
+			"ParentName":"Total Product Cost",
+			"ComponentName":"Product Standard Cost",
+			"Weight":1
+		}
+	],
+	"Subsets@Code.links":
+	[
+		"Retail Measure.subsets/}Bedrock.Dim.Clone.json"
+	]
+}

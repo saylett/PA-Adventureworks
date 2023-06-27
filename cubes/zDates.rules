@@ -1,0 +1,70 @@
+
+# zDates Rules
+
+SKIPCHECK;
+
+# Allocate 1 if a working Day
+['Working Days'] =  N:
+IF(DB('zDates', !zDates, 'WEEKEND_FLAG') @= 'N' & DB('zDates', !zDates, 'NZ_PUBLIC_HOLIDAY_FLAG') @= 'N',
+1,
+0
+);
+
+# Allocate 1 if a Salary Day
+['Salary Days'] =  N:
+IF(DB('zDates', !zDates, 'WEEKEND_FLAG') @= 'N',
+1,
+0
+);
+
+# Allocate 1 per Actual Day
+['Actual Days'] =  N:
+IF(DB('zDates', !zDates, 'WEEKEND_FLAG') @<> '',
+1,
+0
+);
+
+# Work out Finacial Year Week IDs
+['20060101', 'FY_WEEK_ID'] = STET;
+
+['FY_WEEK_ID'] =  N:
+IF(DB('zDates', STR(NUMBR(!zDates) - 1, LONG(!zDates) , 0), 'FY_WEEK_ID') = 7, 1,
+DB('zDates', STR(NUMBR(!zDates) - 1, LONG(!zDates) , 0), 'FY_WEEK_ID') + 1);
+
+['Working Days Left']=N:
+  IF(ELLEV('zDates', !zDates) = 0,
+    IF(SUBST(!zDates,7,2) @= '01',
+      DB('zDates',ELPAR('zDates', !zDates, 1),'Working Days'),
+      DB('zDates',DIMNM('zDaysOrder', DIMIX('zDaysOrder', !zDates) -1),'Working Days Left') - ['Working Days']
+    ),
+    CONTINUE
+  );
+
+['Working Days Gone']=N:
+  IF(ELLEV('zDates', !zDates) = 0,
+    IF(SUBST(!zDates,7,2) @= '01',
+      ['Working Days'],
+      DB('zDates',DIMNM('zDaysOrder', DIMIX('zDaysOrder', !zDates) -1),'Working Days Gone') + ['Working Days']
+    ),
+    CONTINUE
+  );
+
+FEEDERS;
+
+['WEEKEND_FLAG'] =>
+DB('zDates', !zDates, 'Working Days');
+
+['WEEKEND_FLAG'] =>
+DB('zDates', !zDates, 'Salary Days');
+
+['WEEKEND_FLAG'] =>
+DB('zDates', !zDates, 'Actual Days');
+
+['WEEKEND_FLAG'] =>
+DB('zDates', !zDates, 'Working Days Left');
+
+['WEEKEND_FLAG'] =>
+DB('zDates', !zDates, 'Working Days Gone');
+
+#DB('zDates','FY' | SUBST(!FinYear, 3,2) | !Period,'Salary Days');
+#DB('Personnel',!FinYear,!Period,!Version,'Base',!Location,'TOTAL NEW POSITIONS','Working Days in Month')

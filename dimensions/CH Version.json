@@ -1,0 +1,13 @@
+{
+	"@type":"Dimension",
+	"Name":"CH Version",
+	"AllLeavesHierarchyName":"",
+	"DefaultHierarchy":
+	{
+		"@id":"Dimensions('CH Version')/Hierarchies('CH Version')"
+	},
+	"Hierarchies@Code.links":
+	[
+		"CH Version.hierarchies/CH Version.json"
+	]
+}

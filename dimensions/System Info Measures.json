@@ -1,0 +1,13 @@
+{
+	"@type":"Dimension",
+	"Name":"System Info Measures",
+	"AllLeavesHierarchyName":"",
+	"DefaultHierarchy":
+	{
+		"@id":"Dimensions('System Info Measures')/Hierarchies('System Info Measures')"
+	},
+	"Hierarchies@Code.links":
+	[
+		"System Info Measures.hierarchies/System Info Measures.json"
+	]
+}

@@ -1,0 +1,13 @@
+{
+	"@type":"Dimension",
+	"Name":"Reseller",
+	"AllLeavesHierarchyName":"",
+	"DefaultHierarchy":
+	{
+		"@id":"Dimensions('Reseller')/Hierarchies('Reseller')"
+	},
+	"Hierarchies@Code.links":
+	[
+		"Reseller.hierarchies/Reseller.json"
+	]
+}

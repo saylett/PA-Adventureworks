@@ -1,0 +1,102 @@
+#region Prolog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+######################################
+##~~  Copyright Cubewise P/L 2010 ~~##
+######################################
+
+### Constants ###
+
+cProcess = 'Bedrock.Dim,Attr.Insert';
+cTimeStamp = TimSt( Now, '\Y\m\d\h\i\s' );
+cDebugFile = GetProcessErrorFileDirectory | cProcess | '.' | cTimeStamp | '.';
+
+
+### Initialise Debug ###
+
+If( pDebug >= 1 );
+
+  # Set debug file name
+  sDebugFile = cDebugFile | 'Prolog.debug';
+
+  # List parameters
+  AsciiOutput( sDebugFile, 'Parameters: pDimension     : ' | pDimension );
+  AsciiOutput( sDebugFile, '            pPrevAttr      : ' | pPrevAttr );
+  AsciiOutput( sDebugFile, '            pAttribute     : ' | pAttribute );
+  AsciiOutput( sDebugFile, '            pAttributeType : ' | pAttributeType );
+
+EndIf;
+
+
+### Validate Parameters ###
+
+# Validate dimension
+If( Trim( pDimension ) @= '' );
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, 'No dimension specified' );
+  EndIf;
+  ProcessQuit;
+EndIf;
+If( DimensionExists( pDimension ) = 0 );
+ If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, 'Dimension: ' | pDimension | ' does not exist' );
+  EndIf;
+  ProcessQuit;
+EndIf;
+
+# Validate attribute
+If( Trim( pAttribute ) @= '' );
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, 'No attribute specified' );
+  EndIf;
+  ProcessQuit;
+EndIf;
+If( DimIx( '}ElementAttributes_' | pDimension, pAttribute ) > 0 );
+  ## The attribute to be inserted already exist in the dimension.
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, 'Attribute: "' | pAttribute | '" already exists in dimension: "' | pDimension | '"' );
+  EndIf;
+  ProcessQuit;
+EndIf;
+
+# Validate attribute type
+pAttributeType = Upper( SubSt( pAttributeType, 1, 1 ) );
+If( pAttributeType @<> 'A' & pAttributeType @<> 'S' & pAttributeType @<> 'N' );
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, 'Invalid attribute type: '| pAttributeType );
+  EndIf;
+  ProcessQuit;
+EndIf;
+
+# Validate previous attribute
+If( DimIx( '}ElementAttributes_' | pDimension, pPrevAttr ) = 0 % pPrevAttr @= pAttribute );
+  pPrevAttr = '';
+EndIf;
+
+
+### Insert Attribute ###
+
+If( pDebug <= 1 );
+  AttrInsert( pDimension, pPrevAttr, pAttribute, pAttributeType );
+EndIf;
+
+
+### End Prolog ###
+#endregion
+#region Metadata
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Data
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Epilog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion

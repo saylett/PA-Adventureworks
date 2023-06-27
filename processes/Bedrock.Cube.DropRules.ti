@@ -1,0 +1,209 @@
+#region Prolog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+
+#####################################################################################
+##~~Copyright bedrocktm1.org 2012 www.bedrocktm1.org/how-to-licence.php Ver      ~~##
+#####################################################################################
+
+# This process exports a cube's rule file.
+# It can be used in cases where copying to a cube is very slow because the rules
+# get reprocessed every time a cell is copied
+# This process can be used to temporarily export the rules
+# After the data has been copied, the exported rule file can be reattached using Bedrock.Cube.AttachRules
+# The Metadata tab, exports the rules file line by line
+# The Data tab comments out the rules file line by line (This is safer then deleting the rules file)
+# Rob Cregan, 2012
+
+### Constants ###
+
+cProcess = 'Bedrock.Cube.DropRules';
+cTimeStamp = TimSt( Now, '\Y\m\d\h\i\s' );
+cDebugFile = GetProcessErrorFileDirectory | cProcess | '.' | cTimeStamp | '.';
+
+
+
+### Initialise Debug ###
+
+If( pDebug >= 1 );
+
+  # Set debug file name
+  sDebugFile = cDebugFile | 'Prolog.debug';
+
+  # Log start time
+  AsciiOutput( sDebugFile, 'Process Started: ' | TimSt( Now, '\d-\m-\Y \h:\i:\s' ) );
+
+  # Log parameters
+  AsciiOutput( sDebugFile, 'Parameters: pCube     : ' | pCube );
+
+EndIf;
+
+
+### Validate Parameters ###
+
+nErrors = 0;
+
+sCube = Trim(pCube);
+
+# The exported rule file is the original
+cExportedRuleFile = sCube | 'Exported Rule File.rux';
+
+# The original file is replaced by one with comments
+# The process has to export from the original then reattach the rules with comments on the epilog
+cRuleFileWithComments = sCube | 'Disabled Rule File.rux';
+
+# If no cube has been specified then terminate process
+If( sCube @= '' );
+  nErrors = 1;
+  sMessage = 'No cube specified';
+  If( pDebug >= 1 );
+    AsciiOutput( sDebugFile, sMessage );
+  EndIf;
+  ItemReject( sMessage );
+
+  Else;
+  # sCube is not blank
+  If( CubeExists( sCube ) = 1 );
+    If( pDebug >= 1 );
+      AsciiOutput( sDebugFile, 'Cube: ' | sCube | ' OK' );
+    EndIf;
+
+    # Check if the cube has a rule file
+
+    sRuleFile = sCube | '.rux';
+
+    If( FileExists( sRuleFile ) = 1 );
+      If( pDebug >= 1 );
+        AsciiOutput( sDebugFile, 'Rules file found' );
+      EndIf;
+
+      # set the rule file as the data source
+      DatasourceNameForClient = sRuleFile;
+      DatasourceNameForServer =  sRuleFile;
+
+    Else;
+      nErrors = 1;
+      If( pDebug >= 1 );
+        AsciiOutput( sDebugFile, 'No rules exist in cube: ' | sCube );
+      EndIf;
+    EndIf;
+
+
+  Else;
+  # Cube isn't blank but the specified cube doesn't exist
+    If( pDebug >= 1 );
+      AsciiOutput( sDebugFile, 'Cube: ' | sCube | ' does not exist' );
+    EndIf;
+  EndIf;
+EndIf;
+
+
+
+
+### End Prolog ###
+#endregion
+#region Metadata
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+#Export the rule file
+
+If( nErrors = 0 );
+
+#Rules file can't have double quotes "
+#So set the ASCIIQuoteCharacter to single quotes
+
+  DatasourceASCIIQuoteCharacter = '';
+  AsciiOutput( cExportedRuleFile, vText);
+
+EndIf;
+#endregion
+#region Data
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+# Now that the rule file has been exported
+# Put hashes in front of each line in the rule file
+
+If( nErrors = 0 );
+
+  DatasourceASCIIQuoteCharacter = '';
+  
+  # Comment out each line, if it's not commented out already
+  If(SUBST(vText,1,10) @= '#Disable#_');
+    sCommentedLine = vText;
+    Else;
+    sCommentedLine = '#Disable#_' | vText;
+  EndIf;
+    
+  AsciiOutput( cRuleFileWithComments, sCommentedLine);
+
+EndIf;
+#endregion
+#region Epilog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+
+#####################################################################################
+##~~Copyright bedrocktm1.org 2011 www.bedrocktm1.org/how-to-licence.php Ver 1.0.0~~##
+#####################################################################################
+
+
+### Initialise Debug ###
+
+If( pDebug >= 1 );
+
+  # Set debug file name
+  sDebugFile = cDebugFile | 'Epilog.debug';
+
+EndIf;
+
+
+### Attach rules to cloned cube ###
+
+If( nErrors = 0);
+  sRuleFile = cRuleFileWithComments;
+  If( FileExists( sRuleFile ) = 1 );
+    If( pDebug >= 1 );
+      AsciiOutput( sDebugFile, 'Rules file found' );
+    EndIf;
+    If( pDebug <= 1 );
+      RuleLoadFromFile( sCube, sRuleFile  );
+    EndIf;
+  Else;
+    If( pDebug >= 1 );
+      AsciiOutput( sDebugFile, 'Cannot attach rule.  No rules exist in source cube: ' | sCube );
+    EndIf;
+  EndIf;
+EndIf;
+
+
+### Finalise Debug ###
+
+If( pDebug >= 1 );
+
+  # Log errors
+  If( nErrors <> 0 );
+    AsciiOutput( sDebugFile, 'Errors Occurred' );
+  EndIf;
+
+  # Log finish time
+  AsciiOutput( sDebugFile, 'Process Finished: ' | TimSt( Now, '\d-\m-\Y \h:\i:\s' ) );
+
+EndIf;
+
+
+### If errors occurred terminate process with a major error status ###
+
+If( nErrors <> 0 );
+  ProcessQuit;
+EndIf;
+
+### End Epilog ###
+#endregion

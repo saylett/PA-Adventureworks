@@ -1,0 +1,72 @@
+{
+	"@type":"Process",
+	"Name":"Dim - Product Category",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Dim - Product Category.ti",
+	"UIData":"CubeAction=1511€DataAction=1503€CubeLogChanges=0€",
+	"VariablesUIData":
+	[
+		"VarType=33€ColType=827€",
+		"VarType=33€ColType=827€",
+		"VarType=32€ColType=827€",
+		"VarType=32€ColType=827€",
+		"VarType=32€ColType=827€",
+		"VarType=33€ColType=827€"
+	],
+	"DataSource":
+	{
+		"Type":"ODBC",
+		"dataSourceNameForClient":"Adventure Works x64",
+		"dataSourceNameForServer":"Adventure Works x64",
+		"password":"eJ<T0a8@A23LrUcpXCkSI?ig@956tfU8>dErigKtLJu7@gH^88GCFCDDXhlBE:=nKjoy4gY8q\\a1e8HeyGXLyyMy22vF8<vFmB9JSZpVX9:K6cSR;0wL3mCgwos2ZKpt8\\?<lOz:dR3^Lz6Sr?1^\\a4Gh=l3>VN@UutFB:zabap^>pqH63HiIE5;Y4?LZL\\IDF=T:7C6",
+		"query":"select * from dimProductSubCategory",
+		"userName":"",
+		"usesUnicode":true
+	},
+	"Parameters":[],
+	"Variables":
+	[
+		{
+			"Name":"ProductSubcategoryKey",
+			"Type":"Numeric",
+			"Position":1,
+			"StartByte":0,
+			"EndByte":0
+		},
+		{
+			"Name":"ProductSubcategoryAlternateKey",
+			"Type":"Numeric",
+			"Position":2,
+			"StartByte":0,
+			"EndByte":0
+		},
+		{
+			"Name":"EnglishProductSubcategoryName",
+			"Type":"String",
+			"Position":3,
+			"StartByte":0,
+			"EndByte":0
+		},
+		{
+			"Name":"SpanishProductSubcategoryName",
+			"Type":"String",
+			"Position":4,
+			"StartByte":0,
+			"EndByte":0
+		},
+		{
+			"Name":"FrenchProductSubcategoryName",
+			"Type":"String",
+			"Position":5,
+			"StartByte":0,
+			"EndByte":0
+		},
+		{
+			"Name":"ProductCategoryKey",
+			"Type":"Numeric",
+			"Position":6,
+			"StartByte":0,
+			"EndByte":0
+		}
+	]
+}

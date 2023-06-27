@@ -1,0 +1,40 @@
+#region Prolog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+
+
+sCubeName = '}SysControlCube';
+sMeasureName = '}SysControlCubeMeasure';
+
+If (DimensionExists(sMeasureName) = 0);
+    DimensionCreate(sMeasureName);
+    DimensionElementInsert(sMeasureName, '', 'Monitor', 'S');
+EndIf;
+
+If (CubeExists(sCubeName) = 0);
+    CubeCreate(sCubeName, '}Cubes', sMeasureName);
+EndIf;
+
+sCubeName = '}SysControlDimension';
+If (CubeExists(sCubeName) = 0);
+    CubeCreate(sCubeName, '}Dimensions', sMeasureName);
+EndIf;
+
+#endregion
+#region Metadata
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Data
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Epilog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion

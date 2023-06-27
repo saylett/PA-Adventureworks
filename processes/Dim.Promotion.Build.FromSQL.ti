@@ -1,0 +1,154 @@
+#region Prolog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+### This Process Builds the Reseller Dimension ###
+
+## CONSTANTS ##
+cDimName = 'Promotion';
+cTopNode1 = 'All Promotions By Category';
+
+
+## Create Dimension if it does not exist ##
+If ( DimensionExists (cDimName ) = 0 ) ;
+  DimensionCreate(cDimName);
+ENDIF;
+
+DimensionSortOrder(cDimName,'ByName','Ascending','ByHierarchy','Ascending');
+
+
+## Insert Top Node of Consolidations ##
+DimensionElementInsert(cDimName,'',cTopNode1,'C');
+
+## Unwind Dimension ##
+# Iterate through dimensions and for each consolidated element, disconnect its components
+nElementCount = DIMSIZ ( cDimName );
+iCount = 1;
+
+WHILE ( iCount <= nElementCount );
+  sElement = DIMNM ( cDimName, iCount );
+  IF ( DTYPE ( cDimName, sElement ) @= 'C' );
+    nChildren = ELCOMPN ( cDimName, sElement );
+    iChild = nChildren;
+    WHILE ( iChild > 0 );
+      sChild = ELCOMP ( cDimName, sElement, iChild );
+      DimensionElementComponentDelete ( cDimName, sElement, sChild );
+      iChild = iChild - 1;
+    END;
+  ENDIF;
+  iCount = iCount + 1;
+END;
+
+
+## Insert Attributes ##
+cAttr1 = 'Discount Pct';
+cAttr2 = 'French Description';
+cAttr3 = 'Spanish Description';
+cAttr4 = 'Start Date';
+cAttr5 = 'End Date';
+cAttr6 = 'Min Qty';
+cAttr7 = 'Max Qty';
+
+
+
+AttrInsert(cDimName,'',cAttr1,'N');
+AttrInsert(cDimName,'',cAttr2,'A');
+AttrInsert(cDimName,'',cAttr3,'A');
+AttrInsert(cDimName,'',cAttr4,'S');
+AttrInsert(cDimName,'',cAttr5,'S');
+AttrInsert(cDimName,'',cAttr6,'N');
+AttrInsert(cDimName,'',cAttr7,'N');
+#endregion
+#region Metadata
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+## CLEAN METADATA ##
+sPromo = Trim(vEnglishpromotionname);
+sPromoType = Trim(vEnglishpromotiontype);
+sPromoCat = Trim(vEnglishpromotioncategory);
+
+## Insert N Level elements ##
+DimensionElementInsert(cDimName,'',sPromo,'N');
+
+# Roll the 'No Discount' Promotion directly into the Top Node #
+If ( sPromo @= 'No Discount'  );
+  DimensionElementComponentAdd(cDimName,cTopNode1 , sPromoCat , 1  );
+ELSE;
+  ## Insert C Level elements ##
+  DimensionElementInsert(cDimName,'',sPromotype,'C');
+  DimensionElementInsert(cDimName,'',sPromoCat,'C');
+
+  ## Assign Parent Child Relationship ##
+  DimensionElementComponentAdd(cDimName,sPromoType , sPromo , 1  );
+  DimensionElementComponentAdd(cDimName,sPromoCat , sPromoType , 1  );
+  DimensionElementComponentAdd(cDimName,cTopNode1 , sPromoCat , 1  );
+  
+ENDIF;
+#endregion
+#region Data
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+## CLEAN METADATA ##
+sPromo = Trim(vEnglishpromotionname);
+sPromoType = Trim(vEnglishpromotiontype);
+sPromoCat = Trim(vEnglishpromotioncategory);
+
+## Insert Attributes ##
+
+# 1. French Alias #
+cAttr = 'French Description';
+sValue = Trim(vFrenchpromotionname)  ;
+AttrPutS(sValue,cDimName,sPromo,cAttr);
+
+cAttr = 'French Description';
+sValue = Trim(vFrenchpromotiontype)  ;
+AttrPutS(sValue,cDimName,sPromotype,cAttr);
+
+cAttr = 'French Description';
+sValue = Trim(vFrenchpromotioncategory)  ;
+AttrPutS(sValue,cDimName,sPromoCat,cAttr);
+
+# 2. Spanish Alias #
+cAttr = 'Spanish Description';
+sValue = Trim(vSpanishpromotionname)  ;
+AttrPutS(sValue,cDimName,sPromo,cAttr);
+
+cAttr = 'Spanish Description';
+sValue = Trim(vSpanishpromotiontype)  ;
+AttrPutS(sValue,cDimName,sPromotype,cAttr);
+
+cAttr = 'Spanish Description';
+sValue = Trim(vSpanishpromotioncategory)  ;
+AttrPutS(sValue,cDimName,sPromoCat,cAttr);
+
+# 3. Other Attributes #
+cAttr = 'Discount Pct';
+nValue =  vDiscountpct ;
+AttrPutN(nValue,cDimName,sPromo,cAttr);
+
+cAttr = 'Start Date';
+sValue = vStartdate  ;
+AttrPutS(sValue,cDimName,sPromo,cAttr);
+
+cAttr = 'End Date';
+sValue = vEnddate  ;
+AttrPutS(sValue,cDimName,sPromo,cAttr);
+
+cAttr = 'Min Qty';
+nValue = vMinQty  ;
+AttrPutN(nValue,cDimName,sPromo,cAttr);
+
+cAttr = 'Max Qty';
+nValue = vMaxQty  ;
+AttrPutN(nValue,cDimName,sPromo,cAttr);
+#endregion
+#region Epilog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion

@@ -1,0 +1,13 @@
+{
+	"@type":"Dimension",
+	"Name":"Workday Load Day",
+	"AllLeavesHierarchyName":"",
+	"DefaultHierarchy":
+	{
+		"@id":"Dimensions('Workday Load Day')/Hierarchies('Workday Load Day')"
+	},
+	"Hierarchies@Code.links":
+	[
+		"Workday Load Day.hierarchies/Workday Load Day.json"
+	]
+}

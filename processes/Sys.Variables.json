@@ -1,0 +1,21 @@
+{
+	"@type":"Process",
+	"Name":"Sys.Variables",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Sys.Variables.ti",
+	"UIData":"CubeAction=1511€DataAction=1503€CubeLogChanges=0€",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pDelete",
+			"Prompt":"",
+			"Value":"N",
+			"Type":"String"
+		}
+	],
+	"Variables":[]
+}

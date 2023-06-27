@@ -1,0 +1,29 @@
+{
+	"@type":"Process",
+	"Name":"Dim.CloneOriginals",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Dim.CloneOriginals.ti",
+	"UIData":"CubeAction=1511€DataAction=1503€CubeLogChanges=0€",
+	"VariablesUIData":
+	[
+		"VarType=32€ColType=827€"
+	],
+	"DataSource":
+	{
+		"Type":"TM1DimensionSubset",
+		"dataSourceNameForClient":"}Dimensions",
+		"dataSourceNameForServer":"}Dimensions",
+		"subset":"All"
+	},
+	"Parameters":[],
+	"Variables":
+	[
+		{
+			"Name":"vDim",
+			"Type":"String",
+			"Position":1,
+			"StartByte":0,
+			"EndByte":0
+		}
+	]
+}

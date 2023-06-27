@@ -1,0 +1,10 @@
+{
+	"@type":"Subset",
+	"Name":"Cub.CH Reporting.Load from CH Data Input",
+	"Elements":
+	[
+		{
+			"@id":"Dimensions('CH Company')/Hierarchies('CH Company')/Elements('0009')"
+		}
+	]
+}

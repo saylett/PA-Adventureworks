@@ -1,0 +1,13 @@
+{
+	"@type":"Dimension",
+	"Name":"Regional Assumptions Measure",
+	"AllLeavesHierarchyName":"",
+	"DefaultHierarchy":
+	{
+		"@id":"Dimensions('Regional Assumptions Measure')/Hierarchies('Regional Assumptions Measure')"
+	},
+	"Hierarchies@Code.links":
+	[
+		"Regional Assumptions Measure.hierarchies/Regional Assumptions Measure.json"
+	]
+}

@@ -1,0 +1,60 @@
+{
+	"@type":"Hierarchy",
+	"Name":"Currency",
+	"Elements":
+	[
+		{
+			"Name":"Local",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"All Currencies",
+			"Type":"Consolidated"
+		},
+		{
+			"Name":"AUD",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"EUR",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"GBP",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"USD",
+			"Type":"Numeric"
+		}
+	],
+	"Edges":
+	[
+		{
+			"ParentName":"All Currencies",
+			"ComponentName":"AUD",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Currencies",
+			"ComponentName":"EUR",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Currencies",
+			"ComponentName":"GBP",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Currencies",
+			"ComponentName":"USD",
+			"Weight":1
+		}
+	],
+	"Subsets@Code.links":
+	[
+		"Currency.subsets/Default.json",
+		"Currency.subsets/Orphan N Elements (no parents).json",
+		"Currency.subsets/}Bedrock.Dim.Clone.json"
+	]
+}

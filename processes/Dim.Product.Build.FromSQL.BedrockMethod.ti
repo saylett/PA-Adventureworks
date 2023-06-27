@@ -1,0 +1,142 @@
+#region Prolog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+## This Process builds the Product Dimension and its consolidations from SQL DW ##
+
+## CONSTANTS ##
+cDimName = 'Product';
+cTopNode1 = 'All Products by Category';
+cTopNode2 = 'All Products';
+
+
+## Create Dimension if it does not exist ##
+If ( DimensionExists (cDimName ) = 0 ) ;
+  DimensionCreate(cDimName);
+ENDIF;
+
+DimensionSortOrder(cDimName,'ByName','Ascending','ByHierarchy','Ascending');
+
+
+## Insert Top Node of Consolidations ##
+DimensionElementInsert(cDimName,'',cTopNode1,'C');
+DimensionElementInsert(cDimName,'',cTopNode2,'C');
+
+## Unwind Dimension ##
+ExecuteProcess('Bedrock.Dim.Unwind','pDimension',cDimName,'pDebug',0);
+
+
+
+## Insert Attributes ##
+cAttr1 = 'Code&Description';
+
+AttrInsert(cDimName,'',cAttr1,'A');
+
+#################################################################################################################################
+### Create Product Type Dimension (same as product but level 0 is removed and level 0's parents are the new level 0)
+
+cDimName2 = 'Product Type';
+cTopNode1 = 'All Products by Category';
+cTopNode2 = 'All Products';
+
+## Create Dimension if it does not exist ##
+If ( DimensionExists (cDimName2 ) = 0 ) ;
+  DimensionCreate(cDimName2);
+ENDIF;
+
+DimensionSortOrder(cDimName2,'ByName','Ascending','ByHierarchy','Ascending');
+
+
+## Insert Top Node of Consolidations ##
+DimensionElementInsert(cDimName2,'',cTopNode1,'C');
+DimensionElementInsert(cDimName2,'',cTopNode2,'C');
+
+## Unwind Dimension ##
+ExecuteProcess('Bedrock.Dim.Unwind','pDimension',cDimName2,'pDebug',0);
+
+
+
+#endregion
+#region Metadata
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+## CLEAN METADATA ##
+sProduct = NumberToString(vProductKey);
+sSubCategory = Trim(vEnglishproductsubcategoryname);
+sCategory = Trim(vEnglishproductcategoryname);
+
+
+#### Consolidation 1 ####
+## Insert N Level elements ##
+DimensionElementInsert(cDimName,'',sProduct,'N');
+
+## Insert Sub-Category ##
+DimensionElementInsert(cDimName,'',sSubCategory,'C');
+
+## Insert Category ##
+DimensionElementInsert(cDimName,'',sCategory,'C');
+
+## Assign Parent Child Relationship ##
+DimensionElementComponentAdd(cDimName,sSubCategory,sProduct,1);
+DimensionElementComponentAdd(cDimName,sCategory,sSubCategory,1);
+DimensionElementComponentAdd(cDimName,cTopNode1,sCategory,1);
+
+## Consolidation 2 ##
+DimensionElementComponentAdd(cDimName,cTopNode2,sProduct,1);
+
+
+#################################################################################################################################
+### Create Product Type Dimension (same as product but level 0 is removed and level 0's parents are the new level 0)
+# So the Sub category is now the N level
+
+## Insert Sub-Category ##
+#DimensionElementInsert(cDimName,'',sSubCategory,'C');
+DimensionElementInsert(cDimName2,'',sSubCategory,'N');
+
+## Insert Category ##
+DimensionElementInsert(cDimName2,'',sCategory,'C');
+
+## Assign Parent Child Relationship ##
+#DimensionElementComponentAdd(cDimName,sSubCategory,sProduct,1);
+DimensionElementComponentAdd(cDimName2,sCategory,sSubCategory,1);
+DimensionElementComponentAdd(cDimName2,cTopNode1,sCategory,1);
+
+## Consolidation 2 ##
+DimensionElementComponentAdd(cDimName2,cTopNode2,sSubCategory,1);
+
+
+
+
+
+
+#endregion
+#region Data
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+
+## CLEAN METADATA ##
+sProduct = NumberToString(vProductKey);
+sSubCategory = Trim(vEnglishproductsubcategoryname);
+sCategory = Trim(vEnglishproductcategoryname);
+sProdDesc = Trim(vEnglishproductname);
+
+## Insert Attributes ##
+
+# 1. Product alias #
+cAttr = 'Code&Description';
+sValue = sProduct | ' - '  | sProdDesc ;
+AttrPutS(sValue,cDimName,sProduct,cAttr);
+
+#################################################################################################################################
+
+#endregion
+#region Epilog
+
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion

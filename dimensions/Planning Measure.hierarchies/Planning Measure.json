@@ -1,0 +1,59 @@
+{
+	"@type":"Hierarchy",
+	"Name":"Planning Measure",
+	"Elements":
+	[
+		{
+			"Name":"% to Sales",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Mthly % Growth",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"FY % Growth",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"FY % to Sales LY",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"FY % to Sales by Input",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Mthly % to Sales LY",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Mthly % to Sales by Input",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"CPI Index",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Bgt Calc Method",
+			"Type":"String"
+		},
+		{
+			"Name":"Bgt Spread Method",
+			"Type":"String"
+		},
+		{
+			"Name":"Spread Acct Basis",
+			"Type":"String"
+		},
+		{
+			"Name":"Banding Acct Basis",
+			"Type":"String"
+		}
+	],
+	"Subsets@Code.links":
+	[
+		"Planning Measure.subsets/}Bedrock.Dim.Clone.json"
+	]
+}

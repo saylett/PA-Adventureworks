@@ -1,0 +1,33 @@
+{
+	"@type":"Process",
+	"Name":"Bedrock.Server.TM1Service.Restart",
+	"HasSecurityAccess":true,
+	"Code@Code.link":"Bedrock.Server.TM1Service.Restart.ti",
+	"UIData":"CubeAction=1511€DataAction=1503€CubeLogChanges=0€",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pService",
+			"Prompt":"Specify EXACT Service Name",
+			"Value":"",
+			"Type":"String"
+		},
+		{
+			"Name":"pDataDir",
+			"Prompt":"Data Directory (Leave Blank to use TM1 Settings)",
+			"Value":"",
+			"Type":"String"
+		},
+		{
+			"Name":"pDebug",
+			"Prompt":"Debug Mode",
+			"Value":0,
+			"Type":"Numeric"
+		}
+	],
+	"Variables":[]
+}

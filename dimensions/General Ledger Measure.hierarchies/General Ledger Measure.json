@@ -1,0 +1,54 @@
+{
+	"@type":"Hierarchy",
+	"Name":"General Ledger Measure",
+	"Elements":
+	[
+		{
+			"Name":"Planning Measures",
+			"Type":"Consolidated"
+		},
+		{
+			"Name":"Amount",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Base Amount",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Factor",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Phasing",
+			"Type":"Numeric"
+		}
+	],
+	"Edges":
+	[
+		{
+			"ParentName":"Planning Measures",
+			"ComponentName":"Amount",
+			"Weight":1
+		},
+		{
+			"ParentName":"Planning Measures",
+			"ComponentName":"Base Amount",
+			"Weight":1
+		},
+		{
+			"ParentName":"Planning Measures",
+			"ComponentName":"Factor",
+			"Weight":1
+		},
+		{
+			"ParentName":"Planning Measures",
+			"ComponentName":"Phasing",
+			"Weight":1
+		}
+	],
+	"Subsets@Code.links":
+	[
+		"General Ledger Measure.subsets/}Bedrock.Dim.Clone.json"
+	]
+}

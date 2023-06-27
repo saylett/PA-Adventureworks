@@ -1,0 +1,91 @@
+{
+	"@type":"Hierarchy",
+	"Name":"CH Company",
+	"Elements":
+	[
+		{
+			"Name":"All Entities",
+			"Type":"Consolidated"
+		},
+		{
+			"Name":"0001",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"0009",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"0011",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"0039",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"0052",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"0060",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"0067",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"0136",
+			"Type":"Numeric"
+		}
+	],
+	"Edges":
+	[
+		{
+			"ParentName":"All Entities",
+			"ComponentName":"0001",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Entities",
+			"ComponentName":"0009",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Entities",
+			"ComponentName":"0011",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Entities",
+			"ComponentName":"0039",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Entities",
+			"ComponentName":"0052",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Entities",
+			"ComponentName":"0060",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Entities",
+			"ComponentName":"0067",
+			"Weight":1
+		},
+		{
+			"ParentName":"All Entities",
+			"ComponentName":"0136",
+			"Weight":1
+		}
+	],
+	"Subsets@Code.links":
+	[
+		"CH Company.subsets/Cub.CH Reporting.Clear.json",
+		"CH Company.subsets/Cub.CH Reporting.Load from CH Data Input.json"
+	]
+}

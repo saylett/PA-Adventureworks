@@ -1,0 +1,13 @@
+{
+	"@type":"Dimension",
+	"Name":"Sales Territory",
+	"AllLeavesHierarchyName":"",
+	"DefaultHierarchy":
+	{
+		"@id":"Dimensions('Sales Territory')/Hierarchies('Sales Territory')"
+	},
+	"Hierarchies@Code.links":
+	[
+		"Sales Territory.hierarchies/Sales Territory.json"
+	]
+}

@@ -1,0 +1,13 @@
+{
+	"@type":"Dimension",
+	"Name":"Sales Quota Measure",
+	"AllLeavesHierarchyName":"",
+	"DefaultHierarchy":
+	{
+		"@id":"Dimensions('Sales Quota Measure')/Hierarchies('Sales Quota Measure')"
+	},
+	"Hierarchies@Code.links":
+	[
+		"Sales Quota Measure.hierarchies/Sales Quota Measure.json"
+	]
+}

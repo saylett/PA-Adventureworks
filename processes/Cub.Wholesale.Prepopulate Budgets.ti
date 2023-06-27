@@ -1,0 +1,61 @@
+#region Prolog
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+
+cValue = 1;
+
+cCub = 'WholeSale';
+cView = GetProcessName();
+
+cDim ='Year';
+cDim2 = 'Version';
+
+sYearFrom = DimensionElementPrincipalName(cDim, pYearFrom);
+sVersionFrom = DimensionElementPrincipalName(cDim2, pVersionFrom);
+
+sYearTo = DimensionElementPrincipalName(cDim, pYearTo);
+sVersionTo = DimensionElementPrincipalName(cDim2, pVersionTo);
+
+If( pUplift = 0 );
+  nFactor = 1;
+Else;
+  nFactor = 1+pUplift;
+EndIf;
+
+sFactor = NumberToString(nFactor);
+
+sFilter = cDim | ':' | pYearFrom | '&' | cDim2 | ':' | pVersionFrom;
+sMap = cDim | ':' | pYearFrom | '->' | pYearTo | '&' | cDim2 | ':' | pVersionFrom | '->' | pVersionTo ;
+
+ExecuteProcess('Bedrock.Cube.Data.Copy.IntraCube',
+  'pCube',cCub,
+  'pView',cView,
+  'pFilter',sFilter,
+  'pElementMapping',sMap,
+  'pFactor',sFactor,
+  'pDimensionDelim','&',
+  'pElementStartDelim',':',
+  'pElementDelim','+',
+  'pMappingDelimiter','->',
+  'pZeroTarget',1,
+  'pZeroSource',0,
+  'pDeleteViewsAndSubsets',1,
+  'pSuppressConsol',1,
+  'pSuppressRules',1,
+  'pAccumulate',0,
+  'pDropAndReattachRules',0,
+  'pCopyDataViaClonedCube',0,
+  'pDebug',1);
+#endregion
+#region Metadata
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Data
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion
+#region Epilog
+#****Begin: Generated Statements***
+#****End: Generated Statements****
+#endregion

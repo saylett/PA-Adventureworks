@@ -1,0 +1,20 @@
+{
+	"@type":"Chore",
+	"Name":"CXTM1SaveDataAll",
+	"StartTime":"2011-02-16T11:00Z",
+	"DSTSensitive":false,
+	"Active":true,
+	"ExecutionMode":"SingleCommit",
+	"Frequency":"P1DT00H00M00S",
+	"Tasks":
+	[
+		{
+			"Step":0,
+			"Parameters":[],
+			"Process":
+			{
+				"@id":"Processes('CXTM1SaveDataAll')"
+			}
+		}
+	]
+}
